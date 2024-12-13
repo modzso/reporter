@@ -3,7 +3,6 @@ package com.epam.reporter.csv;
 import com.epam.reporter.Employee;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,25 +11,24 @@ import java.util.Map;
 
 public class CsvParser {
 
-
-    public static Map<Integer, Employee> parseCSV(String filePath) throws IOException {
+    public static Map<Integer, Employee> parseCSV(BufferedReader br) throws IOException {
         Map<Integer, Employee> employeeMap = new HashMap<>();
         List<String[]> rows = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                rows.add(parts);
+        // Read header
+        br.readLine();
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] parts = line.split(",");
+            rows.add(parts);
 
-                int id = Integer.parseInt(parts[0].trim());
-                String firstName = parts[1].trim();
-                String lastName = parts[2].trim();
-                double salary = Double.parseDouble(parts[3].trim());
+            int id = Integer.parseInt(parts[0].trim());
+            String firstName = parts[1].trim();
+            String lastName = parts[2].trim();
+            double salary = Double.parseDouble(parts[3].trim());
 
-                Employee employee = new Employee(id, firstName, lastName, salary);
-                employeeMap.put(id, employee);
-            }
+            Employee employee = new Employee(id, firstName, lastName, salary);
+            employeeMap.put(id, employee);
         }
 
         for (String[] parts : rows) {

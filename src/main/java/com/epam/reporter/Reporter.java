@@ -42,10 +42,10 @@ public class Reporter {
         double subordinatesAverageSalary = manager.getSubordinates().stream().mapToDouble(Employee::getSalary).average().getAsDouble();
 
         if (manager.getSalary() < subordinatesAverageSalary * 1.2) {
-            report.add(String.format("Manager %s %s salary (%.2f) is less than 20%% of subordinates average salary (%.2f)", manager.getFirstName(), manager.getLastName(), manager.getSalary(), subordinatesAverageSalary));
+            report.add(String.format("Manager %s %s salary (%6.2f) is less than 20%% of subordinates average salary by %6.2f", manager.getFirstName(), manager.getLastName(), manager.getSalary(), (subordinatesAverageSalary * 1.2 - manager.getSalary())));
         }
         if (manager.getSalary() > subordinatesAverageSalary * 1.5) {
-            report.add(String.format("Manager %s %s salary (%.2f) is more than 50%% of subordinates average salary (%.2f)", manager.getFirstName(), manager.getLastName(), manager.getSalary(), subordinatesAverageSalary));
+            report.add(String.format("Manager %s %s salary (%6.2f) is more than 50%% of subordinates average salary by %6.2f", manager.getFirstName(), manager.getLastName(), manager.getSalary(), (manager.getSalary() - subordinatesAverageSalary * 1.5)));
         }
         for (Employee employee : manager.getSubordinates()) {
             if (employee.isManager()) {

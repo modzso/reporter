@@ -58,7 +58,7 @@ class ReporterTest {
         employees.put(1, manager);
         employees.put(2, employee);
 
-        assertEquals(List.of("Manager John Doe salary (100.00) is less than 20% of subordinates average salary (100.00)"), new Reporter(employees).report());
+        assertEquals(List.of("Manager John Doe salary (100.00) is less than 20% of subordinates average salary by  20.00"), new Reporter(employees).report());
     }
 
     @Test
@@ -72,7 +72,7 @@ class ReporterTest {
         employees.put(1, manager);
         employees.put(2, employee);
 
-        assertEquals(List.of("Manager John Doe salary (200.00) is more than 50% of subordinates average salary (100.00)"), new Reporter(employees).report());
+        assertEquals(List.of("Manager John Doe salary (200.00) is more than 50% of subordinates average salary by  50.00"), new Reporter(employees).report());
     }
 
     @Test
