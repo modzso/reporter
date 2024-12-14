@@ -8,12 +8,12 @@ import java.util.Map;
 /**
  * Class for creating a simple report about salary discrepancies
  * and long reporting lines.
+ *
+ * It requires a map of employees.
  */
 public class Reporter {
 
     private static final int MAXIMUM_LEVEL = 5;
-    private static final String EMPLOYEE_REPORTING_LINE
-            = "Employee (%s %s) has more than 4 manager between him and the CEO!";
     private static final double TWENTY_PERCENT = 1.2;
     private static final double FIFTY_PERCENT = 1.5;
     private final Map<Integer, Employee> employees;
