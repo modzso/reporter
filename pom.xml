@@ -7,19 +7,6 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>reporter</name>
 	<description>Demo project for Spring Boot</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
 	<properties>
 		<java.version>21</java.version>
 	</properties>
@@ -39,8 +26,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.13.0</version>
 				<configuration>
-					<source>21</source>
-					<target>21</target>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -49,6 +36,14 @@
 				<version>3.5.2</version>
 				<configuration>
 					<includes>**/*Test.java</includes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.6.3</version>
+				<configuration>
+					<source>${java.version}</source>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -88,5 +83,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

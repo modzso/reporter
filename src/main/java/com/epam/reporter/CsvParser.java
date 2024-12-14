@@ -1,6 +1,4 @@
-package com.epam.reporter.csv;
-
-import com.epam.reporter.Employee;
+package com.epam.reporter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,9 +7,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CsvParser {
+/**
+ * Class provides CSV parsing capability.
+ */
+public final class CsvParser {
 
-    public static Map<Integer, Employee> parseCSV(BufferedReader br) throws IOException {
+
+    private CsvParser() {
+    }
+
+    /**
+     * Parses input from the given BufferedReader.
+     * It assumes that the first line is the header
+     * and the order of columns are:
+     * Id,firstName,lastName,salary,managerId
+     *
+     * @param br to read the csv file from
+     * @return a map of employees
+     * @throws IOException if there is a problem with reading the file
+     */
+    public static Map<Integer, Employee> parseCSV(BufferedReader br)
+            throws IOException {
         Map<Integer, Employee> employeeMap = new HashMap<>();
         List<String[]> rows = new ArrayList<>();
 

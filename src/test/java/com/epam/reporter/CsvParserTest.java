@@ -1,6 +1,5 @@
-package com.epam.reporter.csv;
+package com.epam.reporter;
 
-import com.epam.reporter.Employee;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;

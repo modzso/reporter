@@ -5,22 +5,46 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class for creating a simple report about salary discrepancies
+ * and long reporting lines.
+ */
 public class Reporter {
 
+    private static final int MAXIMUM_LEVEL = 5;
+    private static final String EMPLOYEE_REPORTING_LINE
+            = "Employee (%s %s) has more than 4 manager between him and the CEO!";
+    private static final double TWENTY_PERCENT = 1.2;
+    private static final double FIFTY_PERCENT = 1.5;
     private final Map<Integer, Employee> employees;
 
+    /**
+     * Constructs a new reporter.
+     * @param employees map of employees.
+     */
     public Reporter(Map<Integer, Employee> employees) {
         this.employees = employees;
     }
 
-    // Board wants to make sure that every manager earns
-    //at least 20% more than the average salary of its direct subordinates, but no more than 50% more
-    //than that average. Company wants to avoid too long reporting lines, therefore we would like to
-    //identify all employees which have more than 4 managers between them and the CEO
+
+    /**
+     * Finds the CEO (employee without manager).
+     * If multiple employees found or none, it throws a RuntimeException.
+     * Starting from the CEO, it starts checking employees.
+     *
+     * Checks if any manager salary is between 120% - 150% of their direct subordinates.
+     * Also checks if there are longer reporting lines where more than 4 manager between
+     * them and the CEO.
+     * @return list of report lines
+     * @throws RuntimeException if no CEO or multiple CEO (employee without supervisor) found
+     */
     public List<String> report() {
         // Identify the CEO
         // Iterate over subordinates
-        List<Employee> withoutManager = employees.values().stream().filter(employee -> employee.getManager() == null).toList();
+        List<Employee> withoutManager = employees.values()
+                .stream()
+                .filter(employee -> employee.getManager() == null)
+                .toList();
         if (withoutManager.isEmpty()) {
             throw new RuntimeException("CEO not found!");
         }
@@ -36,26 +60,57 @@ public class Reporter {
         }
     }
 
+    /**
+     * Checks if manager salary is between 120% - 150% percent
+     * between the average of its direct subordinates.
+     * Otherwise, it adds a line about it to the report.
+     *
+     * Also checks if any given reporting line is longer
+     * than 4 managers between the CEO and the given employee.
+     * If yes, adds a line about it to the report.
+     * @param manager manager to be checked
+     * @return lines about issues found.
+     */
     private List<String> checkManager(Employee manager) {
         // Since employee is a manager, he should have subordinates
         List<String> report = new ArrayList<>();
-        double subordinatesAverageSalary = manager.getSubordinates().stream().mapToDouble(Employee::getSalary).average().getAsDouble();
+        double subordinatesAverageSalary = manager.getSubordinates()
+                .stream()
+                .mapToDouble(Employee::getSalary)
+                .average()
+                .getAsDouble();
 
-        if (manager.getSalary() < subordinatesAverageSalary * 1.2) {
-            report.add(String.format("Manager %s %s salary (%6.2f) is less than 20%% of subordinates average salary by %6.2f", manager.getFirstName(), manager.getLastName(), manager.getSalary(), (subordinatesAverageSalary * 1.2 - manager.getSalary())));
+        if (manager.getSalary() < subordinatesAverageSalary * TWENTY_PERCENT) {
+            report.add(getLowSalaryReport(manager, subordinatesAverageSalary));
         }
-        if (manager.getSalary() > subordinatesAverageSalary * 1.5) {
-            report.add(String.format("Manager %s %s salary (%6.2f) is more than 50%% of subordinates average salary by %6.2f", manager.getFirstName(), manager.getLastName(), manager.getSalary(), (manager.getSalary() - subordinatesAverageSalary * 1.5)));
+        if (manager.getSalary() > subordinatesAverageSalary * FIFTY_PERCENT) {
+            report.add(getHighSalaryReport(manager, subordinatesAverageSalary));
         }
         for (Employee employee : manager.getSubordinates()) {
             if (employee.isManager()) {
                 report.addAll(checkManager(employee));
             }
-            if (employee.getLevel() > 5) {
-                report.add(String.format("Employee (%s %s) has more than 4 manager between him and the CEO!", employee.getFirstName(), employee.getLastName()));
+            if (employee.getLevel() > MAXIMUM_LEVEL) {
+                report.add(getLongReportingLine(employee));
             }
         }
         return report;
     }
 
+    private static String getLongReportingLine(Employee employee) {
+        return String.format("Employee (%s %s) has more than 4 manager between him and the CEO!",
+                employee.getFirstName(), employee.getLastName());
+    }
+
+    private static String getHighSalaryReport(Employee manager, double subordinatesAverageSalary) {
+        return String.format("Manager %s %s salary (%6.2f) is more than 50%% of subordinates average salary by %6.2f",
+                manager.getFirstName(), manager.getLastName(), manager.getSalary(),
+                (manager.getSalary() - subordinatesAverageSalary * FIFTY_PERCENT));
+    }
+
+    private static String getLowSalaryReport(Employee manager, double subordinatesAverageSalary) {
+        return String.format("Manager %s %s salary (%6.2f) is less than 20%% of subordinates average salary by %6.2f",
+                manager.getFirstName(), manager.getLastName(), manager.getSalary(),
+                (subordinatesAverageSalary * TWENTY_PERCENT - manager.getSalary()));
+    }
 }
