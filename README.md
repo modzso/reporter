@@ -27,3 +27,8 @@ where the managerId is optional
 * The program throws an exception if there are no CEO (without managerId).
 * The program does not check for circular connection that is A is manager of B, B is manager of C, and C is manager of A.
 
+# Design
+* Employee class stores the parsed data. Because the manager and subordinates are set later, I opted to use a normal class instead of record.
+* CsvParser handles the parsing of the input data. It returns a map of Employees, where all properties are already set.
+* Reporter creates the report. It receives the map of Employees, executes multiple checks (Is there a CEO?, are there multiple CEOs?) If these checks don't fail, creates the report.
+* ReporterApplication is the mail class, it is checking the program arguments, and prints the report to the standard output.
