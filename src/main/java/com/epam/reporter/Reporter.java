@@ -8,8 +8,8 @@ import java.util.Map;
 /**
  * Class for creating a simple report about salary discrepancies
  * and long reporting lines.
- *
- * It requires a map of employees.
+ * <p>
+ * It requires a map of employees.</p>
  */
 public class Reporter {
 
@@ -31,10 +31,10 @@ public class Reporter {
      * Finds the CEO (employee without manager).
      * If multiple employees found or none, it throws a RuntimeException.
      * Starting from the CEO, it starts checking employees.
-     *
+     * <p>
      * Checks if any manager salary is between 120% - 150% of their direct subordinates.
      * Also checks if there are longer reporting lines where more than 4 manager between
-     * them and the CEO.
+     * them and the CEO.</p>
      * @return list of report lines
      * @throws RuntimeException if no CEO or multiple CEO (employee without supervisor) found
      */
@@ -52,7 +52,7 @@ public class Reporter {
             System.out.println(withoutManager);
             throw new RuntimeException("Multiple employees without manager!");
         }
-        Employee ceo = withoutManager.get(0);
+        Employee ceo = withoutManager.getFirst();
         if (ceo.isManager()) {
             return checkManager(ceo);
         } else {
@@ -64,10 +64,11 @@ public class Reporter {
      * Checks if manager salary is between 120% - 150% percent
      * between the average of its direct subordinates.
      * Otherwise, it adds a line about it to the report.
-     *
+     * <p>
      * Also checks if any given reporting line is longer
      * than 4 managers between the CEO and the given employee.
      * If yes, adds a line about it to the report.
+     * </p>
      * @param manager manager to be checked
      * @return lines about issues found.
      */
@@ -78,7 +79,7 @@ public class Reporter {
                 .stream()
                 .mapToDouble(Employee::getSalary)
                 .average()
-                .getAsDouble();
+                .orElseThrow();
 
         if (manager.getSalary() < subordinatesAverageSalary * TWENTY_PERCENT) {
             report.add(getLowSalaryReport(manager, subordinatesAverageSalary));

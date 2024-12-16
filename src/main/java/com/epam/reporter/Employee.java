@@ -9,12 +9,12 @@ import java.util.List;
  */
 public class Employee {
 
-    private int id;
-    private String firstName;
-    private String lastName;
-    private double salary;
+    private final int id;
+    private final String firstName;
+    private final String lastName;
+    private final double salary;
     private Employee manager;
-    private List<Employee> subordinates;
+    private final List<Employee> subordinates;
 
     /**
      * Constructor for Employee. Basic properties can be set with this constructor.
