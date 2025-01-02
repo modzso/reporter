@@ -1,9 +1,6 @@
 package com.epam.reporter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class for creating a simple report about salary discrepancies
@@ -17,6 +14,7 @@ public class Reporter {
     private static final double TWENTY_PERCENT = 1.2;
     private static final double FIFTY_PERCENT = 1.5;
     private final Map<Integer, Employee> employees;
+    private final Set<Employee> visitedEmployees = new HashSet<>();
 
     /**
      * Constructs a new reporter.
@@ -54,9 +52,23 @@ public class Reporter {
         }
         Employee ceo = withoutManager.getFirst();
         if (ceo.isManager()) {
-            return checkManager(ceo);
+            List<String> report = checkManager(ceo);
+            addReportAboutEmployeesNotInHierarchy(report);
+            return report;
         } else {
             return Collections.emptyList();
+        }
+    }
+
+    private void addReportAboutEmployeesNotInHierarchy(List<String> report) {
+        List<Employee> notVisitedEmployees = getNotVisitedEmployees();
+
+        if (!notVisitedEmployees.isEmpty()) {
+            StringJoiner joiner = new StringJoiner(", ", "The following employees are not in the hierarchy:", ".");
+            for (Employee employee : notVisitedEmployees) {
+                joiner.add(employee.getFirstName() + " " + employee.getLastName());
+            }
+            report.add(joiner.toString());
         }
     }
 
@@ -87,7 +99,9 @@ public class Reporter {
         if (manager.getSalary() > subordinatesAverageSalary * FIFTY_PERCENT) {
             report.add(getHighSalaryReport(manager, subordinatesAverageSalary));
         }
+        visitedEmployees.add(manager);
         for (Employee employee : manager.getSubordinates()) {
+            visitedEmployees.add(employee);
             if (employee.isManager()) {
                 report.addAll(checkManager(employee));
             }
@@ -96,6 +110,12 @@ public class Reporter {
             }
         }
         return report;
+    }
+
+    public List<Employee> getNotVisitedEmployees() {
+        List<Employee> notVisitedEmployees = new ArrayList<>(employees.values());
+        notVisitedEmployees.removeAll(visitedEmployees);
+        return notVisitedEmployees;
     }
 
     private static String getLongReportingLine(Employee employee) {

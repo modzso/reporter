@@ -2,10 +2,7 @@ package com.epam.reporter;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -125,6 +122,35 @@ class ReporterTest {
         employees.put(7, employee);
 
         assertEquals(List.of("Employee (Jack Doe) has more than 4 manager between him and the CEO!"), new Reporter(employees).report());
+    }
+
+    @Test
+    public void report_employees_not_in_hiearachy() {
+        Employee ceo = new Employee(1, "John", "Doe", 130d);
+        Employee manager = new Employee(2, "Emily", "Taylor", 96d);
+        Employee employee = new Employee(3, "Jack", "Doe", 80d);
+        Employee danglingEmployee1 = new Employee(4, "Lauren", "Smith", 80d);
+        Employee danglingEmployee2 = new Employee(5, "Blake", "Thompson", 80d);
+        ceo.addSubordinate(manager);
+        manager.addSubordinate(employee);
+        manager.setManager(ceo);
+        manager.addSubordinate(employee);
+        employee.setManager(manager);
+
+        danglingEmployee1.addSubordinate(danglingEmployee2);
+        danglingEmployee1.setManager(danglingEmployee2);
+        danglingEmployee2.setManager(danglingEmployee1);
+        danglingEmployee2.addSubordinate(danglingEmployee1);
+
+        Map<Integer, Employee> employees = new HashMap<>();
+        employees.put(1, ceo);
+        employees.put(2, manager);
+        employees.put(3, employee);
+        employees.put(4, danglingEmployee1);
+        employees.put(5, danglingEmployee2);
+
+        List<String> report = new Reporter(employees).report();
+        assertEquals(List.of("The following employees are not in the hierarchy:Lauren Smith, Blake Thompson."), report);
     }
 
 }
