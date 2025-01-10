@@ -1,4 +1,4 @@
-package com.epam.reporter;
+package com.epam.reporter.impl;
 
 import org.junit.jupiter.api.Test;
 

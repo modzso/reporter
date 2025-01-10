@@ -1,4 +1,4 @@
-package com.epam.reporter;
+package com.epam.reporter.impl;
 
 /**
  * Thrown if multiple employees without manager have been found.

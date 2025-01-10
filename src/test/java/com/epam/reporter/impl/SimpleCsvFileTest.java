@@ -1,15 +1,13 @@
-package com.epam.reporter;
+package com.epam.reporter.impl;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Map;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CsvParserTest {
+class SimpleCsvFileTest {
 
     @Test
     public void parsingSingleEmployeeSuccessful() throws IOException {
@@ -17,7 +15,8 @@ class CsvParserTest {
                 Id,firstName,lastName,salary,managerId
                 1,Joe,Doe,60000,""";
 
-        Map<Integer, Employee> employees = CsvParser.parseCSV(new BufferedReader(new StringReader(line)));
+        var input = new ByteArrayInputStream(line.getBytes(StandardCharsets.UTF_8));
+        var employees = new SimpleCsvFile(input).parse();
         assertTrue(employees.size() == 1);
     }
 
@@ -32,7 +31,8 @@ class CsvParserTest {
 
                 305,Brett,Hardleaf,34000,300""";
 
-        Map<Integer, Employee> employees = CsvParser.parseCSV(new BufferedReader(new StringReader(line)));
+        var input = new ByteArrayInputStream(line.getBytes(StandardCharsets.UTF_8));
+        var employees = new SimpleCsvFile(input).parse();
         assertTrue(employees.size() == 5);
         assertEquals(2, employees.get(123).getSubordinates().size());
     }

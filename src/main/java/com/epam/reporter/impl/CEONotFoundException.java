@@ -1,4 +1,4 @@
-package com.epam.reporter;
+package com.epam.reporter.impl;
 
 /**
  * Thrown if no CEO has been found.

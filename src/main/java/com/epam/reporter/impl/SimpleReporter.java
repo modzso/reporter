@@ -1,4 +1,6 @@
-package com.epam.reporter;
+package com.epam.reporter.impl;
+
+import com.epam.reporter.api.Reporter;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -25,6 +27,7 @@ public class SimpleReporter implements Reporter {
     private static final String LOWER_RANGE_SHOULD_BE_LESS_THAN_HIGHER_RANGE = "Lower range should be less than higher range!";
     private static final String LOWER_RANGE_CANNOT_BE_LESS_THAN_0 = "Lower range cannot be less than 0!";
     private static final String UPPER_RANGE_CANNOT_BE_LESS_THAN_0 = "Upper range cannot be less than 0!";
+    private static final String COEFFICIENT_CANNOT_BE_NULL = "Coefficient cannot be null!";
     private final BigDecimal lowerRangeCoefficient;
     private final String lowerRangePercentage;
     private final BigDecimal upperRangeCoefficient;
@@ -232,6 +235,15 @@ public class SimpleReporter implements Reporter {
         return create(TWENTY_PERCENT, FIFTY_PERCENT, employees);
     }
 
+    /**
+     * Creates a new instance of {@code SimpleReporter} using the provided range coefficients and employees map.
+     *
+     * @param lowerRangeCoefficient the lower range coefficient used for calculations; must not be null
+     * @param upperRangeCoefficient the upper range coefficient used for calculations; must not be null
+     * @param employees a map of employees where the key is the employee ID and the value is the corresponding {@code Employee} object; must not be null
+     * @return a new instance of {@code SimpleReporter}
+     * @throws InvalidRangesException if any of the parameters are null or invalid
+     */
     public static SimpleReporter create(BigDecimal lowerRangeCoefficient,
                                         BigDecimal upperRangeCoefficient,
                                         Map<Integer, Employee> employees) {
@@ -239,9 +251,21 @@ public class SimpleReporter implements Reporter {
         validateRanges(lowerRangeCoefficient, upperRangeCoefficient);
         validateLowerRange(lowerRangeCoefficient);
         validateUpperRange(upperRangeCoefficient);
+        validateEmployeesMap(employees);
         String lowerRangePercentage = toPercentage(lowerRangeCoefficient);
         String upperRangePercentage = toPercentage(upperRangeCoefficient);
         return new SimpleReporter(lowerRangeCoefficient, lowerRangePercentage, upperRangeCoefficient, upperRangePercentage, employees);
+    }
+
+    /**
+     * Checks it the employees map is not null.
+     * @param employees map of employees
+     * @throws IllegalArgumentException if parameter is null
+     */
+    private static void validateEmployeesMap(Map<Integer, Employee> employees) {
+        if (employees == null) {
+            throw new IllegalArgumentException("Employees cannot be null!");
+        }
     }
 
     /**
@@ -273,6 +297,9 @@ public class SimpleReporter implements Reporter {
      * @throws InvalidRangesException if the lower range is greater than the upper range
      */
     private static void validateRanges(BigDecimal lowerRangeCoefficient, BigDecimal upperRangeCoefficient) {
+        if (lowerRangeCoefficient == null || upperRangeCoefficient == null) {
+            throw new InvalidRangesException(COEFFICIENT_CANNOT_BE_NULL);
+        }
         if (lowerRangeCoefficient.compareTo(upperRangeCoefficient) > 0) {
             throw new InvalidRangesException(LOWER_RANGE_SHOULD_BE_LESS_THAN_HIGHER_RANGE);
         }

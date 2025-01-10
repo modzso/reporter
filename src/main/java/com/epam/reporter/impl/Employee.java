@@ -1,4 +1,4 @@
-package com.epam.reporter;
+package com.epam.reporter.impl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
