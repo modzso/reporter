@@ -37,8 +37,7 @@ public class Reporter {
      * @throws RuntimeException if no CEO or multiple CEO (employee without supervisor) found
      */
     public List<String> report() {
-        List<Employee> withoutManager = findTheCeo();
-        Employee ceo = withoutManager.getFirst();
+        Employee ceo = findTheCeo();
         if (ceo.isManager()) {
             List<String> report = checkManager(ceo);
             addReportAboutEmployeesNotInHierarchy(report);
@@ -48,7 +47,11 @@ public class Reporter {
         }
     }
 
-    private List<Employee> findTheCeo() {
+    /**
+     * Finds the CEO, the single employee who has no manager.
+     * @return the CEO
+     */
+    private Employee findTheCeo() {
         List<Employee> withoutManager = employees.values()
                 .stream()
                 .filter(employee -> employee.getManager() == null)
@@ -60,9 +63,13 @@ public class Reporter {
             System.out.println(withoutManager);
             throw new MultipleEmployeesWithoutManagerException();
         }
-        return withoutManager;
+        return withoutManager.getFirst();
     }
 
+    /**
+     * Adds a line about Employees not in the hierarchy.
+     * @param report the report.
+     */
     private void addReportAboutEmployeesNotInHierarchy(List<String> report) {
         List<Employee> notVisitedEmployees = getNotVisitedEmployees();
 
@@ -114,23 +121,44 @@ public class Reporter {
         return report;
     }
 
+    /**
+     * Returns employees not in the hierarchy.
+     * @return list of employees who cannot be reached from the CEO.
+     */
     public List<Employee> getNotVisitedEmployees() {
         List<Employee> notVisitedEmployees = new ArrayList<>(employees.values());
         notVisitedEmployees.removeAll(visitedEmployees);
         return notVisitedEmployees;
     }
 
+    /**
+     * Creates a report about long reporting lines.
+     * @param employee who has more than 4 manager.
+     * @return a report
+     */
     private static String getLongReportingLine(Employee employee) {
         return String.format("Employee (%s %s) has more than 4 manager between him and the CEO!",
                 employee.getFirstName(), employee.getLastName());
     }
 
+    /**
+     * Creates a report about a high salary, that is the manager earns more than 50% of his/her subordinates.
+     * @param manager whose salary should be checked
+     * @param subordinatesAverageSalary the average salary of the manager subordinates
+     * @return the report line about the anomaly
+     */
     private static String getHighSalaryReport(Employee manager, double subordinatesAverageSalary) {
         return String.format("Manager %s %s salary (%6.2f) is more than 50%% of subordinates average salary by %6.2f",
                 manager.getFirstName(), manager.getLastName(), manager.getSalary(),
                 (manager.getSalary() - subordinatesAverageSalary * FIFTY_PERCENT));
     }
 
+    /**
+     * Creates a report about low salary, that is the manager earns less than 20% of his/her subordinates.
+     * @param manager whose salary should be checked
+     * @param subordinatesAverageSalary the average salary of the manager subordinates
+     * @return the report line about the anomaly
+     */
     private static String getLowSalaryReport(Employee manager, double subordinatesAverageSalary) {
         return String.format("Manager %s %s salary (%6.2f) is less than 20%% of subordinates average salary by %6.2f",
                 manager.getFirstName(), manager.getLastName(), manager.getSalary(),

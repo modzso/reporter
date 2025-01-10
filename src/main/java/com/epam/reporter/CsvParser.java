@@ -31,7 +31,6 @@ public final class CsvParser {
         Map<Integer, Employee> employeeMap = new HashMap<>();
         List<String[]> rows = new ArrayList<>();
 
-        // Read header
         br.readLine();
         String line;
         while ((line = br.readLine()) != null) {
