@@ -2,6 +2,7 @@ package com.epam.reporter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ public final class CsvParser {
             int id = Integer.parseInt(parts[0].trim());
             String firstName = parts[1].trim();
             String lastName = parts[2].trim();
-            double salary = Double.parseDouble(parts[3].trim());
+            BigDecimal salary = new BigDecimal(parts[3].trim());
 
             Employee employee = new Employee(id, firstName, lastName, salary);
             employeeMap.put(id, employee);

@@ -1,5 +1,6 @@
 package com.epam.reporter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,7 @@ public class Employee {
     private final int id;
     private final String firstName;
     private final String lastName;
-    private final double salary;
+    private final BigDecimal salary;
     private Employee manager;
     private final List<Employee> subordinates;
 
@@ -23,7 +24,7 @@ public class Employee {
      * @param lastName last name of the employee
      * @param salary salary of the employee
      */
-    public Employee(int id, String firstName, String lastName, double salary) {
+    public Employee(int id, String firstName, String lastName, BigDecimal salary) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -51,7 +52,7 @@ public class Employee {
         return subordinates;
     }
 
-    public double getSalary() {
+    public BigDecimal getSalary() {
         return salary;
     }
 

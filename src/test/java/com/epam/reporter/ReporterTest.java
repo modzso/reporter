@@ -2,16 +2,25 @@ package com.epam.reporter;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReporterTest {
 
+    private static final BigDecimal CEO_SALARY = new BigDecimal("239");
+    private static final BigDecimal DIRECTOR_SALARY = new BigDecimal("199.1");
+    private static final BigDecimal DIVISION_DIRECTOR_SALARY = new BigDecimal("165.9");
+    private static final BigDecimal DEPARTMENT_MANAGER_SALARY = new BigDecimal("138.24");
+    private static final BigDecimal SENIOR_MANAGER_SALARY = new BigDecimal("115.2");
+    private static final BigDecimal MANAGER_SALARY = new BigDecimal("96");
+    private static final BigDecimal EMPLOYEE_SALARY = new BigDecimal("80");
+
     @Test
     public void reportThrowsExceptionIfNoCeoFound() {
-        Employee employee1 = new Employee(1, "John", "Doe", 1d);
-        Employee employee2 = new Employee(2, "Jane", "Doe", 1d);
+        Employee employee1 = new Employee(1, "John", "Doe", EMPLOYEE_SALARY);
+        Employee employee2 = new Employee(2, "Jane", "Doe", EMPLOYEE_SALARY);
         employee2.setManager(employee1);
         employee1.setManager(employee2);
 
@@ -24,8 +33,8 @@ class ReporterTest {
 
     @Test
     public void reportThrowsExceptionIfMoreCeoFound() {
-        Employee employee1 = new Employee(1, "John", "Doe", 1d);
-        Employee employee2 = new Employee(2, "Jane", "Doe", 1d);
+        Employee employee1 = new Employee(1, "John", "Doe", EMPLOYEE_SALARY);
+        Employee employee2 = new Employee(2, "Jane", "Doe", EMPLOYEE_SALARY);
 
         Map<Integer, Employee> employees = new HashMap<>();
         employees.put(1, employee1);
@@ -36,7 +45,7 @@ class ReporterTest {
 
     @Test
     public void reportReturnsReportForCeo() {
-        Employee employee1 = new Employee(1, "John", "Doe", 1d);
+        Employee employee1 = new Employee(1, "John", "Doe", EMPLOYEE_SALARY);
 
         Map<Integer, Employee> employees = new HashMap<>();
         employees.put(1, employee1);
@@ -46,8 +55,8 @@ class ReporterTest {
 
     @Test
     public void reportDisplaysManagerSalaryLessThanSubordinatesAverageSalary20Percent() {
-        Employee manager = new Employee(1, "John", "Doe", 100d);
-        Employee employee = new Employee(2, "Jane", "Doe", 100d);
+        Employee manager = new Employee(1, "John", "Doe", EMPLOYEE_SALARY);
+        Employee employee = new Employee(2, "Jane", "Doe", EMPLOYEE_SALARY);
         manager.addSubordinate(employee);
         employee.setManager(manager);
 
@@ -55,13 +64,13 @@ class ReporterTest {
         employees.put(1, manager);
         employees.put(2, employee);
 
-        assertEquals(List.of("Manager John Doe salary (100.00) is less than 20% of subordinates average salary by  20.00"), new Reporter(employees).report());
+        assertEquals(List.of("Manager John Doe salary ( 80.00) is less than 20% of subordinates average salary by  16.00"), new Reporter(employees).report());
     }
 
     @Test
     public void reportDisplaysManagerSalaryMoreThanSubordinatesSaverageSalary50Percent() {
-        Employee manager = new Employee(1, "John", "Doe", 200d);
-        Employee employee = new Employee(2, "Jane", "Doe", 100d);
+        Employee manager = new Employee(1, "John", "Doe", CEO_SALARY);
+        Employee employee = new Employee(2, "Jane", "Doe", EMPLOYEE_SALARY);
         manager.addSubordinate(employee);
         employee.setManager(manager);
 
@@ -69,14 +78,14 @@ class ReporterTest {
         employees.put(1, manager);
         employees.put(2, employee);
 
-        assertEquals(List.of("Manager John Doe salary (200.00) is more than 50% of subordinates average salary by  50.00"), new Reporter(employees).report());
+        assertEquals(List.of("Manager John Doe salary (239.00) is more than 50% of subordinates average salary by 119.00"), new Reporter(employees).report());
     }
 
     @Test
     public void reportChecksSubordinatesUnderTopLevelManager() {
-        Employee ceo = new Employee(1, "John", "Doe", 120d);
-        Employee manager = new Employee(2, "Jane", "Doe", 100d);
-        Employee employee = new Employee(3, "Jack", "Doe", 80d);
+        Employee ceo = new Employee(1, "John", "Doe", SENIOR_MANAGER_SALARY);
+        Employee manager = new Employee(2, "Jane", "Doe", MANAGER_SALARY);
+        Employee employee = new Employee(3, "Jack", "Doe", EMPLOYEE_SALARY);
         ceo.addSubordinate(manager);
         manager.setManager(ceo);
         manager.addSubordinate(employee);
@@ -92,13 +101,13 @@ class ReporterTest {
 
     @Test
     public void reportChecksSubordinatesUnderMoreLevelManager() {
-        Employee ceo = new Employee(1, "John", "Doe", 239d);
-        Employee director = new Employee(2, "Jane", "Doe", 199.1d);
-        Employee divisionDirector = new Employee(3, "Dan", "Doe", 165.9d);
-        Employee departmentManager = new Employee(4, "Noah", "Doe", 138.24d);
-        Employee seniorManager = new Employee(5, "Robert", "Doe", 115.2d);
-        Employee manager = new Employee(6, "Emily", "Taylor", 96d);
-        Employee employee = new Employee(7, "Jack", "Doe", 80d);
+        Employee ceo = new Employee(1, "John", "Doe", CEO_SALARY);
+        Employee director = new Employee(2, "Jane", "Doe", DIRECTOR_SALARY);
+        Employee divisionDirector = new Employee(3, "Dan", "Doe", DIVISION_DIRECTOR_SALARY);
+        Employee departmentManager = new Employee(4, "Noah", "Doe", DEPARTMENT_MANAGER_SALARY);
+        Employee seniorManager = new Employee(5, "Robert", "Doe", SENIOR_MANAGER_SALARY);
+        Employee manager = new Employee(6, "Emily", "Taylor", MANAGER_SALARY);
+        Employee employee = new Employee(7, "Jack", "Doe", EMPLOYEE_SALARY);
         ceo.addSubordinate(director);
         director.setManager(ceo);
         director.addSubordinate(divisionDirector);
@@ -126,11 +135,11 @@ class ReporterTest {
 
     @Test
     public void reportEmployeesNotInHiearachy() {
-        Employee ceo = new Employee(1, "John", "Doe", 130d);
-        Employee manager = new Employee(2, "Emily", "Taylor", 96d);
-        Employee employee = new Employee(3, "Jack", "Doe", 80d);
-        Employee danglingEmployee1 = new Employee(4, "Lauren", "Smith", 80d);
-        Employee danglingEmployee2 = new Employee(5, "Blake", "Thompson", 80d);
+        Employee ceo = new Employee(1, "John", "Doe", DEPARTMENT_MANAGER_SALARY);
+        Employee manager = new Employee(2, "Emily", "Taylor", MANAGER_SALARY);
+        Employee employee = new Employee(3, "Jack", "Doe", EMPLOYEE_SALARY);
+        Employee danglingEmployee1 = new Employee(4, "Lauren", "Smith", EMPLOYEE_SALARY);
+        Employee danglingEmployee2 = new Employee(5, "Blake", "Thompson", EMPLOYEE_SALARY);
         ceo.addSubordinate(manager);
         manager.addSubordinate(employee);
         manager.setManager(ceo);

@@ -2,14 +2,18 @@ package com.epam.reporter;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EmployeeTest {
 
+    private static final BigDecimal EMPLOYEE_SALARY = new BigDecimal(50d);
+
     @Test
     public void isManagerReturnsTrueIfHasSubordinates() {
-        Employee employee = new Employee(1, "first", "last", 50d);
-        Employee subordinate = new Employee(2, "name", "name", 45d);
+        Employee employee = new Employee(1, "first", "last", EMPLOYEE_SALARY);
+        Employee subordinate = new Employee(2, "name", "name", EMPLOYEE_SALARY);
         employee.addSubordinate(subordinate);
         subordinate.setManager(employee);
 
@@ -18,20 +22,20 @@ class EmployeeTest {
 
     @Test
     public void isManagerReturnsFalseIfHasNoSubordinates() {
-        Employee employee = new Employee(1, "first", "last", 50d);
+        Employee employee = new Employee(1, "first", "last", EMPLOYEE_SALARY);
         assertFalse(employee.isManager());
     }
 
     @Test
     public void getLevelReturns0ForTopLevelManager() {
-        Employee employee = new Employee(1, "first", "last", 50d);
+        Employee employee = new Employee(1, "first", "last", EMPLOYEE_SALARY);
         assertEquals(0, employee.getLevel());
     }
 
     @Test
     public void getLevelReturns1ForEmployeesUnderCeo() {
-        Employee manager = new Employee(1, "first", "last", 1d);
-        Employee employee = new Employee(2, "John", "Connor", 1d);
+        Employee manager = new Employee(1, "first", "last", EMPLOYEE_SALARY);
+        Employee employee = new Employee(2, "John", "Connor", EMPLOYEE_SALARY);
         manager.addSubordinate(employee);
         employee.setManager(manager);
 

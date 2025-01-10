@@ -1,5 +1,6 @@
 package com.epam.reporter;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -11,8 +12,8 @@ import java.util.*;
 public class Reporter {
 
     private static final int MAXIMUM_LEVEL = 5;
-    private static final double TWENTY_PERCENT = 1.2;
-    private static final double FIFTY_PERCENT = 1.5;
+    private static final BigDecimal TWENTY_PERCENT = new BigDecimal("1.2");
+    private static final BigDecimal FIFTY_PERCENT = new BigDecimal("1.5");
     private final Map<Integer, Employee> employees;
     private final Set<Employee> visitedEmployees = new HashSet<>();
 
@@ -96,16 +97,18 @@ public class Reporter {
      */
     private List<String> checkManager(Employee manager) {
         List<String> report = new ArrayList<>();
-        double subordinatesAverageSalary = manager.getSubordinates()
+        BigDecimal[] totalWithCount = manager.getSubordinates()
                 .stream()
-                .mapToDouble(Employee::getSalary)
-                .average()
+                .map(Employee::getSalary)
+                .map(bd -> new BigDecimal[]{bd, BigDecimal.ONE})
+                .reduce((a, b) -> new BigDecimal[]{a[0].add(b[0]), a[1].add(BigDecimal.ONE)})
                 .orElseThrow();
+        BigDecimal subordinatesAverageSalary = totalWithCount[0].divide(totalWithCount[1]);
 
-        if (manager.getSalary() < subordinatesAverageSalary * TWENTY_PERCENT) {
+        if (manager.getSalary().compareTo(subordinatesAverageSalary.multiply(TWENTY_PERCENT)) < 0) {
             report.add(getLowSalaryReport(manager, subordinatesAverageSalary));
         }
-        if (manager.getSalary() > subordinatesAverageSalary * FIFTY_PERCENT) {
+        if (manager.getSalary().compareTo(subordinatesAverageSalary.multiply(FIFTY_PERCENT)) > 0) {
             report.add(getHighSalaryReport(manager, subordinatesAverageSalary));
         }
         visitedEmployees.add(manager);
@@ -147,10 +150,10 @@ public class Reporter {
      * @param subordinatesAverageSalary the average salary of the manager subordinates
      * @return the report line about the anomaly
      */
-    private static String getHighSalaryReport(Employee manager, double subordinatesAverageSalary) {
+    private static String getHighSalaryReport(Employee manager, BigDecimal subordinatesAverageSalary) {
         return String.format("Manager %s %s salary (%6.2f) is more than 50%% of subordinates average salary by %6.2f",
                 manager.getFirstName(), manager.getLastName(), manager.getSalary(),
-                (manager.getSalary() - subordinatesAverageSalary * FIFTY_PERCENT));
+                (manager.getSalary().subtract(subordinatesAverageSalary.multiply(FIFTY_PERCENT))));
     }
 
     /**
@@ -159,9 +162,9 @@ public class Reporter {
      * @param subordinatesAverageSalary the average salary of the manager subordinates
      * @return the report line about the anomaly
      */
-    private static String getLowSalaryReport(Employee manager, double subordinatesAverageSalary) {
+    private static String getLowSalaryReport(Employee manager, BigDecimal subordinatesAverageSalary) {
         return String.format("Manager %s %s salary (%6.2f) is less than 20%% of subordinates average salary by %6.2f",
                 manager.getFirstName(), manager.getLastName(), manager.getSalary(),
-                (subordinatesAverageSalary * TWENTY_PERCENT - manager.getSalary()));
+                (subordinatesAverageSalary.multiply(TWENTY_PERCENT).subtract(manager.getSalary())));
     }
 }
