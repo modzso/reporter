@@ -37,19 +37,7 @@ public class Reporter {
      * @throws RuntimeException if no CEO or multiple CEO (employee without supervisor) found
      */
     public List<String> report() {
-        // Identify the CEO
-        // Iterate over subordinates
-        List<Employee> withoutManager = employees.values()
-                .stream()
-                .filter(employee -> employee.getManager() == null)
-                .toList();
-        if (withoutManager.isEmpty()) {
-            throw new RuntimeException("CEO not found!");
-        }
-        if (withoutManager.size() > 1) {
-            System.out.println(withoutManager);
-            throw new RuntimeException("Multiple employees without manager!");
-        }
+        List<Employee> withoutManager = findTheCeo();
         Employee ceo = withoutManager.getFirst();
         if (ceo.isManager()) {
             List<String> report = checkManager(ceo);
@@ -58,6 +46,21 @@ public class Reporter {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    private List<Employee> findTheCeo() {
+        List<Employee> withoutManager = employees.values()
+                .stream()
+                .filter(employee -> employee.getManager() == null)
+                .toList();
+        if (withoutManager.isEmpty()) {
+            throw new CEONotFoundException();
+        }
+        if (withoutManager.size() > 1) {
+            System.out.println(withoutManager);
+            throw new MultipleEmployeesWithoutManagerException();
+        }
+        return withoutManager;
     }
 
     private void addReportAboutEmployeesNotInHierarchy(List<String> report) {
@@ -85,7 +88,6 @@ public class Reporter {
      * @return lines about issues found.
      */
     private List<String> checkManager(Employee manager) {
-        // Since employee is a manager, he should have subordinates
         List<String> report = new ArrayList<>();
         double subordinatesAverageSalary = manager.getSubordinates()
                 .stream()

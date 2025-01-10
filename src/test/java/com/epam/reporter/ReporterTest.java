@@ -19,7 +19,7 @@ class ReporterTest {
         employees.put(1, employee1);
         employees.put(2, employee2);
 
-        assertThrows(RuntimeException.class, () -> new Reporter(employees).report());
+        assertThrows(CEONotFoundException.class, () -> new Reporter(employees).report());
     }
 
     @Test
@@ -31,7 +31,7 @@ class ReporterTest {
         employees.put(1, employee1);
         employees.put(2, employee2);
 
-        assertThrows(RuntimeException.class, () -> new Reporter(employees).report());
+        assertThrows(MultipleEmployeesWithoutManagerException.class, () -> new Reporter(employees).report());
     }
 
     @Test
