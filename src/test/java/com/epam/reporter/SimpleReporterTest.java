@@ -7,7 +7,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ReporterTest {
+class SimpleReporterTest {
 
     private static final BigDecimal CEO_SALARY = new BigDecimal("239");
     private static final BigDecimal DIRECTOR_SALARY = new BigDecimal("199.1");
@@ -16,6 +16,7 @@ class ReporterTest {
     private static final BigDecimal SENIOR_MANAGER_SALARY = new BigDecimal("115.2");
     private static final BigDecimal MANAGER_SALARY = new BigDecimal("96");
     private static final BigDecimal EMPLOYEE_SALARY = new BigDecimal("80");
+    private static final BigDecimal LESS_THAN_ZERO_COEFFICIENT = new BigDecimal(-1);
 
     @Test
     public void reportThrowsExceptionIfNoCeoFound() {
@@ -28,7 +29,7 @@ class ReporterTest {
         employees.put(1, employee1);
         employees.put(2, employee2);
 
-        assertThrows(CEONotFoundException.class, () -> new Reporter(employees).report());
+        assertThrows(CEONotFoundException.class, () -> SimpleReporter.create(employees).report());
     }
 
     @Test
@@ -40,7 +41,7 @@ class ReporterTest {
         employees.put(1, employee1);
         employees.put(2, employee2);
 
-        assertThrows(MultipleEmployeesWithoutManagerException.class, () -> new Reporter(employees).report());
+        assertThrows(MultipleEmployeesWithoutManagerException.class, () -> SimpleReporter.create(employees).report());
     }
 
     @Test
@@ -50,7 +51,7 @@ class ReporterTest {
         Map<Integer, Employee> employees = new HashMap<>();
         employees.put(1, employee1);
 
-        assertTrue(new Reporter(employees).report().isEmpty());
+        assertTrue(SimpleReporter.create(employees).report().isEmpty());
     }
 
     @Test
@@ -64,7 +65,7 @@ class ReporterTest {
         employees.put(1, manager);
         employees.put(2, employee);
 
-        assertEquals(List.of("Manager John Doe salary ( 80.00) is less than 20% of subordinates average salary by  16.00"), new Reporter(employees).report());
+        assertEquals(List.of("Manager John Doe salary ( 80.00) is less than 20.0% of subordinates average salary by  16.00"), SimpleReporter.create(employees).report());
     }
 
     @Test
@@ -78,7 +79,7 @@ class ReporterTest {
         employees.put(1, manager);
         employees.put(2, employee);
 
-        assertEquals(List.of("Manager John Doe salary (239.00) is more than 50% of subordinates average salary by 119.00"), new Reporter(employees).report());
+        assertEquals(List.of("Manager John Doe salary (239.00) is more than 50.0% of subordinates average salary by 119.00"), SimpleReporter.create(employees).report());
     }
 
     @Test
@@ -96,7 +97,7 @@ class ReporterTest {
         employees.put(2, manager);
         employees.put(3, employee);
 
-        assertEquals(new ArrayList<String>(), new Reporter(employees).report());
+        assertEquals(new ArrayList<String>(), SimpleReporter.create(employees).report());
     }
 
     @Test
@@ -130,11 +131,11 @@ class ReporterTest {
         employees.put(6, manager);
         employees.put(7, employee);
 
-        assertEquals(List.of("Employee (Jack Doe) has more than 4 manager between him and the CEO!"), new Reporter(employees).report());
+        assertEquals(List.of("Employee (Jack Doe) has more than 4 manager between him and the CEO!"), SimpleReporter.create(employees).report());
     }
 
     @Test
-    public void reportEmployeesNotInHiearachy() {
+    public void reportEmployeesNotInHierarchy() {
         Employee ceo = new Employee(1, "John", "Doe", DEPARTMENT_MANAGER_SALARY);
         Employee manager = new Employee(2, "Emily", "Taylor", MANAGER_SALARY);
         Employee employee = new Employee(3, "Jack", "Doe", EMPLOYEE_SALARY);
@@ -158,8 +159,23 @@ class ReporterTest {
         employees.put(4, danglingEmployee1);
         employees.put(5, danglingEmployee2);
 
-        List<String> report = new Reporter(employees).report();
+        List<String> report = SimpleReporter.create(employees).report();
         assertEquals(List.of("The following employees are not in the hierarchy:Lauren Smith, Blake Thompson."), report);
+    }
+
+    @Test
+    public void shouldThrowExceptionIfLowerRangeGreaterThanUpper() {
+        assertThrows(InvalidRangesException.class, () -> SimpleReporter.create(CEO_SALARY, EMPLOYEE_SALARY, Collections.emptyMap()));
+    }
+
+    @Test
+    public void shouldThrowExceptionIfLowerRangeLessThanZero() {
+        assertThrows(InvalidRangesException.class, () -> SimpleReporter.create(LESS_THAN_ZERO_COEFFICIENT, EMPLOYEE_SALARY, Collections.emptyMap()));
+    }
+
+    @Test
+    public void shouldThrowExceptionIfUpperRangeLessThanZero() {
+        assertThrows(InvalidRangesException.class, () -> SimpleReporter.create(CEO_SALARY, LESS_THAN_ZERO_COEFFICIENT, Collections.emptyMap()));
     }
 
 }

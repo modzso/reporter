@@ -24,16 +24,18 @@ public class ReporterApplication {
     public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("Csv filename with employee data is required!");
-            System.out.println("Usage: java -jar target/reporter-0.0.1-SNAPSHOT.jar employee.csv");
+            System.out.println("Usage: java -jar target/reporter-0.0.1-SNAPSHOT.jar employee.csv [company2-employee.csv]");
             System.exit(-1);
         }
 
-        try (BufferedReader br = new BufferedReader(new FileReader(args[0]))) {
-            Map<Integer, Employee> employees = CsvParser.parseCSV(br);
-            List<String> report = new Reporter(employees).report();
-            report.forEach(System.out::println);
-        } catch (IOException e) {
-            System.err.println("File " + args[0] + " not found!");
+        for (String inputFile : args) {
+            try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+                Map<Integer, Employee> employees = CsvParser.parseCSV(br);
+                List<String> report = SimpleReporter.create(employees).report();
+                report.forEach(System.out::println);
+            } catch (IOException e) {
+                System.err.println("File " + inputFile + " not found!");
+            }
         }
     }
 }
