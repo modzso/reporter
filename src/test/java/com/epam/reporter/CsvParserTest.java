@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CsvParserTest {
 
     @Test
-    public void test_parsing_single_employee() throws IOException {
+    public void parsing_single_employee_successful() throws IOException {
         String line = """
                 Id,firstName,lastName,salary,managerId
                 1,Joe,Doe,60000,""";
@@ -22,13 +22,14 @@ class CsvParserTest {
     }
 
     @Test
-    public void test_parsing_multiple_employee() throws IOException {
+    public void parsing_multiple_employees_returns_successful() throws IOException {
         String line = """
                 Id,firstName,lastName,salary,managerId
                 123,Joe,Doe,60000,
                 124,Martin,Chekov,45000,123
                 125,Bob,Ronstad,47000,123
                 300,Alice,Hasacat,50000,124
+
                 305,Brett,Hardleaf,34000,300""";
 
         Map<Integer, Employee> employees = CsvParser.parseCSV(new BufferedReader(new StringReader(line)));

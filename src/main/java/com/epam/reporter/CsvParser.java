@@ -35,6 +35,7 @@ public final class CsvParser {
         br.readLine();
         String line;
         while ((line = br.readLine()) != null) {
+            if (line.isEmpty()) continue;
             String[] parts = line.split(",");
             rows.add(parts);
 
