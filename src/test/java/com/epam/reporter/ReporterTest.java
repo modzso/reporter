@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReporterTest {
 
     @Test
-    public void report_throws_Exception_if_no_ceo_found() {
+    public void reportThrowsExceptionIfNoCeoFound() {
         Employee employee1 = new Employee(1, "John", "Doe", 1d);
         Employee employee2 = new Employee(2, "Jane", "Doe", 1d);
         employee2.setManager(employee1);
@@ -23,7 +23,7 @@ class ReporterTest {
     }
 
     @Test
-    public void report_throws_Exception_if_more_ceo_found() {
+    public void reportThrowsExceptionIfMoreCeoFound() {
         Employee employee1 = new Employee(1, "John", "Doe", 1d);
         Employee employee2 = new Employee(2, "Jane", "Doe", 1d);
 
@@ -35,7 +35,7 @@ class ReporterTest {
     }
 
     @Test
-    public void report_returns_report_for_ceo() {
+    public void reportReturnsReportForCeo() {
         Employee employee1 = new Employee(1, "John", "Doe", 1d);
 
         Map<Integer, Employee> employees = new HashMap<>();
@@ -45,7 +45,7 @@ class ReporterTest {
     }
 
     @Test
-    public void report_displays_manager_salary_less_than_subordinates_average_salary_20_percent() {
+    public void reportDisplaysManagerSalaryLessThanSubordinatesAverageSalary20Percent() {
         Employee manager = new Employee(1, "John", "Doe", 100d);
         Employee employee = new Employee(2, "Jane", "Doe", 100d);
         manager.addSubordinate(employee);
@@ -59,7 +59,7 @@ class ReporterTest {
     }
 
     @Test
-    public void report_displays_manager_salarty_more_than_subordinates_saverage_salary_50_percent() {
+    public void reportDisplaysManagerSalaryMoreThanSubordinatesSaverageSalary50Percent() {
         Employee manager = new Employee(1, "John", "Doe", 200d);
         Employee employee = new Employee(2, "Jane", "Doe", 100d);
         manager.addSubordinate(employee);
@@ -73,7 +73,7 @@ class ReporterTest {
     }
 
     @Test
-    public void report_checks_subordinates_under_top_level_manager() {
+    public void reportChecksSubordinatesUnderTopLevelManager() {
         Employee ceo = new Employee(1, "John", "Doe", 120d);
         Employee manager = new Employee(2, "Jane", "Doe", 100d);
         Employee employee = new Employee(3, "Jack", "Doe", 80d);
@@ -91,7 +91,7 @@ class ReporterTest {
     }
 
     @Test
-    public void report_checks_subordinates_under_more_level_manager() {
+    public void reportChecksSubordinatesUnderMoreLevelManager() {
         Employee ceo = new Employee(1, "John", "Doe", 239d);
         Employee director = new Employee(2, "Jane", "Doe", 199.1d);
         Employee divisionDirector = new Employee(3, "Dan", "Doe", 165.9d);
@@ -125,7 +125,7 @@ class ReporterTest {
     }
 
     @Test
-    public void report_employees_not_in_hiearachy() {
+    public void reportEmployeesNotInHiearachy() {
         Employee ceo = new Employee(1, "John", "Doe", 130d);
         Employee manager = new Employee(2, "Emily", "Taylor", 96d);
         Employee employee = new Employee(3, "Jack", "Doe", 80d);
