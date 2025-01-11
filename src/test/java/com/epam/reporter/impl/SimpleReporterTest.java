@@ -2,127 +2,89 @@ package com.epam.reporter.impl;
 
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.epam.reporter.impl.TestConstants.*;
 
 class SimpleReporterTest {
-
-    private static final BigDecimal CEO_SALARY = new BigDecimal("239");
-    private static final BigDecimal DIRECTOR_SALARY = new BigDecimal("199.1");
-    private static final BigDecimal DIVISION_DIRECTOR_SALARY = new BigDecimal("165.9");
-    private static final BigDecimal DEPARTMENT_MANAGER_SALARY = new BigDecimal("138.24");
-    private static final BigDecimal SENIOR_MANAGER_SALARY = new BigDecimal("115.2");
-    private static final BigDecimal MANAGER_SALARY = new BigDecimal("96");
-    private static final BigDecimal EMPLOYEE_SALARY = new BigDecimal("80");
-    private static final BigDecimal LESS_THAN_ZERO_COEFFICIENT = new BigDecimal(-1);
-
-    @Test
-    public void reportThrowsExceptionIfNoCeoFound() {
-        Employee employee1 = new Employee(1, "John", "Doe", EMPLOYEE_SALARY);
-        Employee employee2 = new Employee(2, "Jane", "Doe", EMPLOYEE_SALARY);
-        employee2.setManager(employee1);
-        employee1.setManager(employee2);
-
-        Map<Integer, Employee> employees = new HashMap<>();
-        employees.put(1, employee1);
-        employees.put(2, employee2);
-
-        assertThrows(CEONotFoundException.class, () -> SimpleReporter.create(employees).report());
-    }
-
-    @Test
-    public void reportThrowsExceptionIfMoreCeoFound() {
-        Employee employee1 = new Employee(1, "John", "Doe", EMPLOYEE_SALARY);
-        Employee employee2 = new Employee(2, "Jane", "Doe", EMPLOYEE_SALARY);
-
-        Map<Integer, Employee> employees = new HashMap<>();
-        employees.put(1, employee1);
-        employees.put(2, employee2);
-
-        assertThrows(MultipleEmployeesWithoutManagerException.class, () -> SimpleReporter.create(employees).report());
-    }
+    private static final String LOWER_RANGE_PERCENTAGE = "20.0";
+    private static final String UPPER_RANGE_PERCENTAGE = "50.0";
 
     @Test
     public void reportReturnsReportForCeo() {
-        Employee employee1 = new Employee(1, "John", "Doe", EMPLOYEE_SALARY);
+        EmployeeEntity employee1 = new EmployeeEntity(1, JOHN, DOE, EMPLOYEE_SALARY, null);
 
-        Map<Integer, Employee> employees = new HashMap<>();
+        Map<Integer, EmployeeEntity> employees = new HashMap<>();
         employees.put(1, employee1);
 
-        assertTrue(SimpleReporter.create(employees).report().isEmpty());
+        var reporter = createReporterWithDefaults(employees);
+
+        assertTrue(reporter.report().isEmpty());
     }
 
     @Test
     public void reportDisplaysManagerSalaryLessThanSubordinatesAverageSalary20Percent() {
-        Employee manager = new Employee(1, "John", "Doe", EMPLOYEE_SALARY);
-        Employee employee = new Employee(2, "Jane", "Doe", EMPLOYEE_SALARY);
+        EmployeeEntity manager = new EmployeeEntity(1, JOHN, DOE, EMPLOYEE_SALARY, null);
+        EmployeeEntity employee = new EmployeeEntity(2, JANE, DOE, EMPLOYEE_SALARY, 1);
         manager.addSubordinate(employee);
-        employee.setManager(manager);
 
-        Map<Integer, Employee> employees = new HashMap<>();
+        Map<Integer, EmployeeEntity> employees = new HashMap<>();
         employees.put(1, manager);
         employees.put(2, employee);
 
-        assertEquals(List.of("Manager John Doe salary ( 80.00) is less than 20.0% of subordinates average salary by  16.00"), SimpleReporter.create(employees).report());
+        var reporter = createReporterWithDefaults(employees);
+
+        assertEquals(List.of("Manager John Doe salary ( 80.00) is less than 20.0% of subordinates average salary by  16.00"), reporter.report());
     }
 
     @Test
     public void reportDisplaysManagerSalaryMoreThanSubordinatesSaverageSalary50Percent() {
-        Employee manager = new Employee(1, "John", "Doe", CEO_SALARY);
-        Employee employee = new Employee(2, "Jane", "Doe", EMPLOYEE_SALARY);
+        EmployeeEntity manager = new EmployeeEntity(1, JOHN, DOE, CEO_SALARY, null);
+        EmployeeEntity employee = new EmployeeEntity(2, JANE, DOE, EMPLOYEE_SALARY, 1);
         manager.addSubordinate(employee);
-        employee.setManager(manager);
 
-        Map<Integer, Employee> employees = new HashMap<>();
+        Map<Integer, EmployeeEntity> employees = new HashMap<>();
         employees.put(1, manager);
         employees.put(2, employee);
 
-        assertEquals(List.of("Manager John Doe salary (239.00) is more than 50.0% of subordinates average salary by 119.00"), SimpleReporter.create(employees).report());
+        var reporter = createReporterWithDefaults(employees);
+        assertEquals(List.of("Manager John Doe salary (239.00) is more than 50.0% of subordinates average salary by 119.00"), reporter.report());
     }
 
     @Test
     public void reportChecksSubordinatesUnderTopLevelManager() {
-        Employee ceo = new Employee(1, "John", "Doe", SENIOR_MANAGER_SALARY);
-        Employee manager = new Employee(2, "Jane", "Doe", MANAGER_SALARY);
-        Employee employee = new Employee(3, "Jack", "Doe", EMPLOYEE_SALARY);
+        EmployeeEntity ceo = new EmployeeEntity(1, JOHN, DOE, SENIOR_MANAGER_SALARY, null);
+        EmployeeEntity manager = new EmployeeEntity(2, JANE, DOE, MANAGER_SALARY, 1);
+        EmployeeEntity employee = new EmployeeEntity(3, JACK, DOE, EMPLOYEE_SALARY, 2);
         ceo.addSubordinate(manager);
-        manager.setManager(ceo);
         manager.addSubordinate(employee);
-        employee.setManager(manager);
 
-        Map<Integer, Employee> employees = new HashMap<>();
+        Map<Integer, EmployeeEntity> employees = new HashMap<>();
         employees.put(1, ceo);
         employees.put(2, manager);
         employees.put(3, employee);
 
-        assertEquals(new ArrayList<String>(), SimpleReporter.create(employees).report());
+        assertEquals(new ArrayList<String>(), createReporterWithDefaults(employees).report());
     }
 
     @Test
     public void reportChecksSubordinatesUnderMoreLevelManager() {
-        Employee ceo = new Employee(1, "John", "Doe", CEO_SALARY);
-        Employee director = new Employee(2, "Jane", "Doe", DIRECTOR_SALARY);
-        Employee divisionDirector = new Employee(3, "Dan", "Doe", DIVISION_DIRECTOR_SALARY);
-        Employee departmentManager = new Employee(4, "Noah", "Doe", DEPARTMENT_MANAGER_SALARY);
-        Employee seniorManager = new Employee(5, "Robert", "Doe", SENIOR_MANAGER_SALARY);
-        Employee manager = new Employee(6, "Emily", "Taylor", MANAGER_SALARY);
-        Employee employee = new Employee(7, "Jack", "Doe", EMPLOYEE_SALARY);
+        EmployeeEntity ceo = new EmployeeEntity(1, JOHN, DOE, CEO_SALARY, null);
+        EmployeeEntity director = new EmployeeEntity(2, JANE, DOE, DIRECTOR_SALARY, 1);
+        EmployeeEntity divisionDirector = new EmployeeEntity(3, DAN, DOE, DIVISION_DIRECTOR_SALARY, 2);
+        EmployeeEntity departmentManager = new EmployeeEntity(4, NOAH, DOE, DEPARTMENT_MANAGER_SALARY, 3);
+        EmployeeEntity seniorManager = new EmployeeEntity(5, ROBERT, DOE, SENIOR_MANAGER_SALARY, 4);
+        EmployeeEntity manager = new EmployeeEntity(6, EMILY, TAYLOR, MANAGER_SALARY, 5);
+        EmployeeEntity employee = new EmployeeEntity(7, JACK, DOE, EMPLOYEE_SALARY, 6);
         ceo.addSubordinate(director);
-        director.setManager(ceo);
         director.addSubordinate(divisionDirector);
-        divisionDirector.setManager(director);
         divisionDirector.addSubordinate(departmentManager);
-        departmentManager.setManager(divisionDirector);
         departmentManager.addSubordinate(seniorManager);
-        seniorManager.setManager(departmentManager);
         seniorManager.addSubordinate(manager);
-        manager.setManager(seniorManager);
         manager.addSubordinate(employee);
-        employee.setManager(manager);
 
-        Map<Integer, Employee> employees = new HashMap<>();
+        Map<Integer, EmployeeEntity> employees = new HashMap<>();
         employees.put(1, ceo);
         employees.put(2, director);
         employees.put(3, divisionDirector);
@@ -131,51 +93,36 @@ class SimpleReporterTest {
         employees.put(6, manager);
         employees.put(7, employee);
 
-        assertEquals(List.of("Employee (Jack Doe) has more than 4 manager between him and the CEO!"), SimpleReporter.create(employees).report());
+        assertEquals(List.of("Employee (Jack Doe) has more than 4 manager between him and the CEO!"), createReporterWithDefaults(employees).report());
     }
 
     @Test
     public void reportEmployeesNotInHierarchy() {
-        Employee ceo = new Employee(1, "John", "Doe", DEPARTMENT_MANAGER_SALARY);
-        Employee manager = new Employee(2, "Emily", "Taylor", MANAGER_SALARY);
-        Employee employee = new Employee(3, "Jack", "Doe", EMPLOYEE_SALARY);
-        Employee danglingEmployee1 = new Employee(4, "Lauren", "Smith", EMPLOYEE_SALARY);
-        Employee danglingEmployee2 = new Employee(5, "Blake", "Thompson", EMPLOYEE_SALARY);
+        EmployeeEntity ceo = new EmployeeEntity(1, JOHN, DOE, DEPARTMENT_MANAGER_SALARY, null);
+        EmployeeEntity manager = new EmployeeEntity(2, EMILY, TAYLOR, MANAGER_SALARY, 1);
+        EmployeeEntity employee = new EmployeeEntity(3, JACK, DOE, EMPLOYEE_SALARY, 2);
+        EmployeeEntity danglingEmployee1 = new EmployeeEntity(4, LAUREN, SMITH, EMPLOYEE_SALARY, 3);
+        EmployeeEntity danglingEmployee2 = new EmployeeEntity(5, BLAKE, THOMPSON, EMPLOYEE_SALARY, 4);
         ceo.addSubordinate(manager);
         manager.addSubordinate(employee);
-        manager.setManager(ceo);
         manager.addSubordinate(employee);
-        employee.setManager(manager);
 
         danglingEmployee1.addSubordinate(danglingEmployee2);
-        danglingEmployee1.setManager(danglingEmployee2);
-        danglingEmployee2.setManager(danglingEmployee1);
         danglingEmployee2.addSubordinate(danglingEmployee1);
 
-        Map<Integer, Employee> employees = new HashMap<>();
+        Map<Integer, EmployeeEntity> employees = new HashMap<>();
         employees.put(1, ceo);
         employees.put(2, manager);
         employees.put(3, employee);
         employees.put(4, danglingEmployee1);
         employees.put(5, danglingEmployee2);
 
-        List<String> report = SimpleReporter.create(employees).report();
+        List<String> report = createReporterWithDefaults(employees).report();
         assertEquals(List.of("The following employees are not in the hierarchy:Lauren Smith, Blake Thompson."), report);
     }
 
-    @Test
-    public void shouldThrowExceptionIfLowerRangeGreaterThanUpper() {
-        assertThrows(InvalidRangesException.class, () -> SimpleReporter.create(CEO_SALARY, EMPLOYEE_SALARY, Collections.emptyMap()));
-    }
-
-    @Test
-    public void shouldThrowExceptionIfLowerRangeLessThanZero() {
-        assertThrows(InvalidRangesException.class, () -> SimpleReporter.create(LESS_THAN_ZERO_COEFFICIENT, EMPLOYEE_SALARY, Collections.emptyMap()));
-    }
-
-    @Test
-    public void shouldThrowExceptionIfUpperRangeLessThanZero() {
-        assertThrows(InvalidRangesException.class, () -> SimpleReporter.create(CEO_SALARY, LESS_THAN_ZERO_COEFFICIENT, Collections.emptyMap()));
+    private static SimpleReporter createReporterWithDefaults(Map<Integer, EmployeeEntity> employees) {
+        return new SimpleReporter(LOWER_RANGE_COEFFICIENT, LOWER_RANGE_PERCENTAGE, UPPER_RANGE_COEFFICIENT, UPPER_RANGE_PERCENTAGE, employees);
     }
 
 }

@@ -3,7 +3,7 @@ package com.epam.reporter;
 
 import com.epam.reporter.api.ReportExecutor;
 import com.epam.reporter.impl.SimpleCsvFile;
-import com.epam.reporter.impl.SimpleReporter;
+import com.epam.reporter.impl.SimpleReporterFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class ReporterApplication {
             System.exit(-1);
         }
         try (var input = new FileInputStream(args[0])) {
-            new ReportExecutor(new SimpleCsvFile(input), SimpleReporter::create).execute();
+            new ReportExecutor(new SimpleCsvFile(input), new SimpleReporterFactory()).execute();
         } catch (IOException e) {
             System.err.println("File: " + args[0] + " was not found!");
         }

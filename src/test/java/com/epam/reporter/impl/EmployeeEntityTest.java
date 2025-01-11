@@ -5,39 +5,37 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.epam.reporter.impl.TestConstants.*;
 
-class EmployeeTest {
-
-    private static final BigDecimal EMPLOYEE_SALARY = new BigDecimal(50d);
+class EmployeeEntityTest {
+    private static final BigDecimal EMPLOYEE_SALARY = new BigDecimal("50");
 
     @Test
     public void isManagerReturnsTrueIfHasSubordinates() {
-        Employee employee = new Employee(1, "first", "last", EMPLOYEE_SALARY);
-        Employee subordinate = new Employee(2, "name", "name", EMPLOYEE_SALARY);
+        EmployeeEntity employee = new EmployeeEntity(1, JOHN, DOE, EMPLOYEE_SALARY, null);
+        EmployeeEntity subordinate = new EmployeeEntity(2, JANE, DOE, EMPLOYEE_SALARY, 1);
         employee.addSubordinate(subordinate);
-        subordinate.setManager(employee);
 
         assertTrue(employee.isManager());
     }
 
     @Test
     public void isManagerReturnsFalseIfHasNoSubordinates() {
-        Employee employee = new Employee(1, "first", "last", EMPLOYEE_SALARY);
+        EmployeeEntity employee = new EmployeeEntity(1, JACK, THOMPSON, EMPLOYEE_SALARY, null);
         assertFalse(employee.isManager());
     }
 
     @Test
     public void getLevelReturns0ForTopLevelManager() {
-        Employee employee = new Employee(1, "first", "last", EMPLOYEE_SALARY);
+        EmployeeEntity employee = new EmployeeEntity(1, JANE, TAYLOR, EMPLOYEE_SALARY, null);
         assertEquals(0, employee.getLevel());
     }
 
     @Test
     public void getLevelReturns1ForEmployeesUnderCeo() {
-        Employee manager = new Employee(1, "first", "last", EMPLOYEE_SALARY);
-        Employee employee = new Employee(2, "John", "Connor", EMPLOYEE_SALARY);
+        EmployeeEntity manager = new EmployeeEntity(1, EMILY, THOMPSON, EMPLOYEE_SALARY, null);
+        EmployeeEntity employee = new EmployeeEntity(2, JOHN, DOE, EMPLOYEE_SALARY, 1);
         manager.addSubordinate(employee);
-        employee.setManager(manager);
 
         assertEquals(1, employee.getLevel());
     }

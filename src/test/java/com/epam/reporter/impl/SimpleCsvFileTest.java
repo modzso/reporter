@@ -10,18 +10,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class SimpleCsvFileTest {
 
     @Test
-    public void parsingSingleEmployeeSuccessful() throws IOException {
+    public void parsingSingleEmployeeSuccessful() {
         String line = """
                 Id,firstName,lastName,salary,managerId
                 1,Joe,Doe,60000,""";
 
         var input = new ByteArrayInputStream(line.getBytes(StandardCharsets.UTF_8));
         var employees = new SimpleCsvFile(input).parse();
-        assertTrue(employees.size() == 1);
+        assertEquals(1, employees.size());
     }
 
     @Test
-    public void parsingMultipleEmployeesReturnsSuccessful() throws IOException {
+    public void parsingMultipleEmployeesReturnsSuccessful() {
         String line = """
                 Id,firstName,lastName,salary,managerId
                 123,Joe,Doe,60000,
@@ -33,8 +33,8 @@ class SimpleCsvFileTest {
 
         var input = new ByteArrayInputStream(line.getBytes(StandardCharsets.UTF_8));
         var employees = new SimpleCsvFile(input).parse();
-        assertTrue(employees.size() == 5);
-        assertEquals(2, employees.get(123).getSubordinates().size());
+        assertEquals(5, employees.size());
+        assertNotNull(employees.get(123));
+        assertEquals("Martin", employees.get(124).firstName());
     }
-
 }

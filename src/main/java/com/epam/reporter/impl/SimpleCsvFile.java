@@ -2,11 +2,12 @@ package com.epam.reporter.impl;
 
 import com.epam.reporter.api.CsvFile;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,6 +17,10 @@ public final class SimpleCsvFile implements CsvFile {
 
     private final InputStream input;
 
+    /**
+     * Constructs a CSV file based on the InputStream.
+     * @param in from the CSV file
+     */
     public SimpleCsvFile(InputStream in) {
         this.input = in;
     }
@@ -26,46 +31,41 @@ public final class SimpleCsvFile implements CsvFile {
      * and the order of columns are:
      * Id,firstName,lastName,salary,managerId
      *
-     * @return a map of employees
+     * @return a map of employee records
      * @throws IllegalArgumentException if there is a problem with the file
      */
-    public Map<Integer, Employee> parse() {
-        Map<Integer, Employee> employeeMap = new HashMap<>();
+    public Map<Integer, com.epam.reporter.api.Employee> parse() {
+        Map<Integer, com.epam.reporter.api.Employee> employeeMap = new HashMap<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(input))) {
-            List<String[]> rows = new ArrayList<>();
 
             br.readLine();
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.isEmpty()) continue;
                 String[] parts = line.split(",");
-                rows.add(parts);
 
                 int id = Integer.parseInt(parts[0].trim());
                 String firstName = parts[1].trim();
                 String lastName = parts[2].trim();
                 BigDecimal salary = new BigDecimal(parts[3].trim());
 
-                Employee employee = new Employee(id, firstName, lastName, salary);
+                com.epam.reporter.api.Employee employee;
+                if (hasManagerId(parts)) {
+                    int managerId = Integer.parseInt(parts[4].trim());
+                    employee = new com.epam.reporter.api.Employee(id, firstName, lastName, salary, managerId);
+                } else {
+                    employee = new com.epam.reporter.api.Employee(id, firstName, lastName, salary, null);
+                }
                 employeeMap.put(id, employee);
             }
-
-            for (String[] parts : rows) {
-                int id = Integer.parseInt(parts[0].trim());
-                Employee employee = employeeMap.get(id);
-                if (parts.length > 4 && !parts[4].trim().isEmpty()) {
-                    int managerId = Integer.parseInt(parts[4].trim());
-                    Employee manager = employeeMap.get(managerId);
-                    if (manager != null) {
-                        employee.setManager(manager);
-                        manager.addSubordinate(employee);
-                    }
-                }
-            }
-
         } catch (IOException e) {
             throw new CsvFileNotFoundException();
         }
         return employeeMap;
+    }
+
+
+    private boolean hasManagerId(String[] parts) {
+        return parts.length > 4 && !parts[4].trim().isEmpty();
     }
 }

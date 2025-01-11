@@ -3,6 +3,7 @@ package com.epam.reporter.impl;
 import com.epam.reporter.api.Reporter;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -12,7 +13,6 @@ import java.util.*;
  * It requires a map of employees.</p>
  */
 public class SimpleReporter implements Reporter {
-
     private static final int MAXIMUM_LEVEL = 5;
     private static final BigDecimal TWENTY_PERCENT = new BigDecimal("1.2");
     private static final BigDecimal FIFTY_PERCENT = new BigDecimal("1.5");
@@ -23,17 +23,12 @@ public class SimpleReporter implements Reporter {
     private static final String DELIMITER = ", ";
     private static final String SUFFIX = ".";
     private static final String SPACE = " ";
-    private static final BigDecimal ONEHUNDRED = new BigDecimal(100);
-    private static final String LOWER_RANGE_SHOULD_BE_LESS_THAN_HIGHER_RANGE = "Lower range should be less than higher range!";
-    private static final String LOWER_RANGE_CANNOT_BE_LESS_THAN_0 = "Lower range cannot be less than 0!";
-    private static final String UPPER_RANGE_CANNOT_BE_LESS_THAN_0 = "Upper range cannot be less than 0!";
-    private static final String COEFFICIENT_CANNOT_BE_NULL = "Coefficient cannot be null!";
     private final BigDecimal lowerRangeCoefficient;
     private final String lowerRangePercentage;
     private final BigDecimal upperRangeCoefficient;
     private final String upperRangePercentage;
-    private final Map<Integer, Employee> employees;
-    private final Set<Employee> visitedEmployees = new HashSet<>();
+    private final Map<Integer, EmployeeEntity> employees;
+    private final Set<EmployeeEntity> visitedEmployees = new HashSet<>();
 
 
     /**
@@ -45,11 +40,11 @@ public class SimpleReporter implements Reporter {
      * @param upperRangePercentage  the upper range in percentage.
      * @param employees             map of employees
      */
-    private SimpleReporter(BigDecimal lowerRangeCoefficient,
+    SimpleReporter(BigDecimal lowerRangeCoefficient,
                            String lowerRangePercentage,
                            BigDecimal upperRangeCoefficient,
                            String upperRangePercentage,
-                           Map<Integer, Employee> employees) {
+                           Map<Integer, EmployeeEntity> employees) {
         this.lowerRangeCoefficient = lowerRangeCoefficient;
         this.lowerRangePercentage = lowerRangePercentage;
         this.upperRangeCoefficient = upperRangeCoefficient;
@@ -71,7 +66,7 @@ public class SimpleReporter implements Reporter {
      */
     @Override
     public List<String> report() {
-        Employee ceo = findTheCeo();
+        EmployeeEntity ceo = findTheCeo();
         if (ceo.isManager()) {
             List<String> report = checkManager(ceo);
             addReportAboutEmployeesNotInHierarchy(report);
@@ -88,18 +83,11 @@ public class SimpleReporter implements Reporter {
      * @throws CEONotFoundException                     if no employee without manager
      * @throws MultipleEmployeesWithoutManagerException if multiple employees without manager
      */
-    private Employee findTheCeo() {
-        List<Employee> withoutManager = employees.values()
+    private EmployeeEntity findTheCeo() {
+        List<EmployeeEntity> withoutManager = employees.values()
                 .stream()
                 .filter(employee -> employee.getManager() == null)
                 .toList();
-        if (withoutManager.isEmpty()) {
-            throw new CEONotFoundException();
-        }
-        if (withoutManager.size() > 1) {
-            System.out.println(withoutManager);
-            throw new MultipleEmployeesWithoutManagerException();
-        }
         return withoutManager.getFirst();
     }
 
@@ -109,11 +97,11 @@ public class SimpleReporter implements Reporter {
      * @param report the report.
      */
     private void addReportAboutEmployeesNotInHierarchy(List<String> report) {
-        List<Employee> notVisitedEmployees = getNotVisitedEmployees();
+        List<EmployeeEntity> notVisitedEmployees = getNotVisitedEmployees();
 
         if (!notVisitedEmployees.isEmpty()) {
             StringJoiner joiner = new StringJoiner(DELIMITER, THE_FOLLOWING_EMPLOYEES_ARE_NOT_IN_THE_HIERARCHY, SUFFIX);
-            for (Employee employee : notVisitedEmployees) {
+            for (EmployeeEntity employee : notVisitedEmployees) {
                 joiner.add(employee.getFirstName() + SPACE + employee.getLastName());
             }
             report.add(joiner.toString());
@@ -133,7 +121,7 @@ public class SimpleReporter implements Reporter {
      * @param manager manager to be checked
      * @return lines about issues found.
      */
-    private List<String> checkManager(Employee manager) {
+    private List<String> checkManager(EmployeeEntity manager) {
         List<String> report = new ArrayList<>();
         BigDecimal subordinatesAverageSalary = calculateSubordinatesAverageSalaryWithHighPrecision(manager);
 
@@ -144,7 +132,7 @@ public class SimpleReporter implements Reporter {
             report.add(getHighSalaryReport(manager, subordinatesAverageSalary));
         }
         visitedEmployees.add(manager);
-        for (Employee employee : manager.getSubordinates()) {
+        for (EmployeeEntity employee : manager.getSubordinates()) {
             visitedEmployees.add(employee);
             if (employee.isManager()) {
                 report.addAll(checkManager(employee));
@@ -162,14 +150,14 @@ public class SimpleReporter implements Reporter {
      * @param manager whose subordinates average salary should be calculated.
      * @return average salary of the subordinates
      */
-    private static BigDecimal calculateSubordinatesAverageSalaryWithHighPrecision(Employee manager) {
+    private static BigDecimal calculateSubordinatesAverageSalaryWithHighPrecision(EmployeeEntity manager) {
         BigDecimal[] totalWithCount = manager.getSubordinates()
                 .stream()
-                .map(Employee::getSalary)
+                .map(EmployeeEntity::getSalary)
                 .map(bd -> new BigDecimal[]{bd, BigDecimal.ONE})
                 .reduce((a, b) -> new BigDecimal[]{a[0].add(b[0]), a[1].add(BigDecimal.ONE)})
                 .orElseThrow();
-        return totalWithCount[0].divide(totalWithCount[1]);
+        return totalWithCount[0].divide(totalWithCount[1], RoundingMode.HALF_UP);
     }
 
     /**
@@ -177,8 +165,8 @@ public class SimpleReporter implements Reporter {
      *
      * @return list of employees who cannot be reached from the CEO.
      */
-    public List<Employee> getNotVisitedEmployees() {
-        List<Employee> notVisitedEmployees = new ArrayList<>(employees.values());
+    private List<EmployeeEntity> getNotVisitedEmployees() {
+        List<EmployeeEntity> notVisitedEmployees = new ArrayList<>(employees.values());
         notVisitedEmployees.removeAll(visitedEmployees);
         return notVisitedEmployees;
     }
@@ -189,7 +177,7 @@ public class SimpleReporter implements Reporter {
      * @param employee who has more than 4 manager.
      * @return a report
      */
-    private static String getLongReportingLine(Employee employee) {
+    private static String getLongReportingLine(EmployeeEntity employee) {
         return String.format(EMPLOYEE_S_S_HAS_MORE_THAN_4_MANAGER_BETWEEN_HIM_AND_THE_CEO,
                 employee.getFirstName(), employee.getLastName());
     }
@@ -201,7 +189,7 @@ public class SimpleReporter implements Reporter {
      * @param subordinatesAverageSalary the average salary of the manager subordinates
      * @return the report line about the anomaly
      */
-    private String getHighSalaryReport(Employee manager, BigDecimal subordinatesAverageSalary) {
+    private String getHighSalaryReport(EmployeeEntity manager, BigDecimal subordinatesAverageSalary) {
         return String.format(MANAGERS_SALARY_IS_MORE_THAN_50_PERCENT_OF_SUBORDINATES_AVERAGE_SALARY,
                 manager.getFirstName(), manager.getLastName(), manager.getSalary(), upperRangePercentage,
                 (manager.getSalary().subtract(subordinatesAverageSalary.multiply(FIFTY_PERCENT))));
@@ -214,94 +202,9 @@ public class SimpleReporter implements Reporter {
      * @param subordinatesAverageSalary the average salary of the manager subordinates
      * @return the report line about the anomaly
      */
-    private String getLowSalaryReport(Employee manager, BigDecimal subordinatesAverageSalary) {
+    private String getLowSalaryReport(EmployeeEntity manager, BigDecimal subordinatesAverageSalary) {
         return String.format(MANAGERS_SALARY_IS_LESS_THAN_20_PERCENT_OF_SUBORDINATES_AVERAGE_SALARY,
                 manager.getFirstName(), manager.getLastName(), manager.getSalary(), lowerRangePercentage,
                 (subordinatesAverageSalary.multiply(TWENTY_PERCENT).subtract(manager.getSalary())));
-    }
-
-    /**
-     * Converts number (1.2) to percentage (20%).
-     *
-     * @param coefficient number to be converted.
-     * @return percentage.
-     */
-    private static String toPercentage(BigDecimal coefficient) {
-        return coefficient.multiply(ONEHUNDRED).subtract(ONEHUNDRED).toPlainString();
-    }
-
-
-    public static SimpleReporter create(Map<Integer, Employee> employees) {
-        return create(TWENTY_PERCENT, FIFTY_PERCENT, employees);
-    }
-
-    /**
-     * Creates a new instance of {@code SimpleReporter} using the provided range coefficients and employees map.
-     *
-     * @param lowerRangeCoefficient the lower range coefficient used for calculations; must not be null
-     * @param upperRangeCoefficient the upper range coefficient used for calculations; must not be null
-     * @param employees a map of employees where the key is the employee ID and the value is the corresponding {@code Employee} object; must not be null
-     * @return a new instance of {@code SimpleReporter}
-     * @throws InvalidRangesException if any of the parameters are null or invalid
-     */
-    public static SimpleReporter create(BigDecimal lowerRangeCoefficient,
-                                        BigDecimal upperRangeCoefficient,
-                                        Map<Integer, Employee> employees) {
-
-        validateRanges(lowerRangeCoefficient, upperRangeCoefficient);
-        validateLowerRange(lowerRangeCoefficient);
-        validateUpperRange(upperRangeCoefficient);
-        validateEmployeesMap(employees);
-        String lowerRangePercentage = toPercentage(lowerRangeCoefficient);
-        String upperRangePercentage = toPercentage(upperRangeCoefficient);
-        return new SimpleReporter(lowerRangeCoefficient, lowerRangePercentage, upperRangeCoefficient, upperRangePercentage, employees);
-    }
-
-    /**
-     * Checks it the employees map is not null.
-     * @param employees map of employees
-     * @throws IllegalArgumentException if parameter is null
-     */
-    private static void validateEmployeesMap(Map<Integer, Employee> employees) {
-        if (employees == null) {
-            throw new IllegalArgumentException("Employees cannot be null!");
-        }
-    }
-
-    /**
-     * Validates the upper range coefficient.
-     * @param upperRangeCoefficient upper range coefficient
-     * @throws InvalidRangesException if the lower range less than zero
-     */
-    private static void validateUpperRange(BigDecimal upperRangeCoefficient) {
-        if (upperRangeCoefficient.compareTo(BigDecimal.ZERO) < 0) {
-            throw new InvalidRangesException(UPPER_RANGE_CANNOT_BE_LESS_THAN_0);
-        }
-    }
-
-    /**
-     * Validates the lower range coefficient.
-     * @param lowerRangeCoefficient lower range coefficient
-     * @throws InvalidRangesException if the lower range less than zero
-     */
-    private static void validateLowerRange(BigDecimal lowerRangeCoefficient) {
-        if (lowerRangeCoefficient.compareTo(BigDecimal.ZERO) < 0) {
-            throw new InvalidRangesException(LOWER_RANGE_CANNOT_BE_LESS_THAN_0);
-        }
-    }
-
-    /**
-     * Checks if the lower range coefficient is less than the upper range.
-     * @param lowerRangeCoefficient lower range coefficient
-     * @param upperRangeCoefficient upper range coefficient
-     * @throws InvalidRangesException if the lower range is greater than the upper range
-     */
-    private static void validateRanges(BigDecimal lowerRangeCoefficient, BigDecimal upperRangeCoefficient) {
-        if (lowerRangeCoefficient == null || upperRangeCoefficient == null) {
-            throw new InvalidRangesException(COEFFICIENT_CANNOT_BE_NULL);
-        }
-        if (lowerRangeCoefficient.compareTo(upperRangeCoefficient) > 0) {
-            throw new InvalidRangesException(LOWER_RANGE_SHOULD_BE_LESS_THAN_HIGHER_RANGE);
-        }
     }
 }

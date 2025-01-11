@@ -1,7 +1,5 @@
 package com.epam.reporter.api;
 
-import com.epam.reporter.impl.Employee;
-
 import java.util.List;
 import java.util.Map;
 
