@@ -10,7 +10,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Converts Employee records to Employee Entities.
+ * Creates a {@code SimpleReporter} with configurable lower range coefficient and upper range coefficient.
+ * Also converts {@code Employee} records to {@code EmployeeEntity} which is linked to his/her managers and subordinates.
  */
 public class SimpleReporterFactory implements ReporterFactory {
     private static final String LOWER_RANGE_SHOULD_BE_LESS_THAN_HIGHER_RANGE = "Lower range should be less than higher range!";
@@ -19,9 +20,9 @@ public class SimpleReporterFactory implements ReporterFactory {
     private static final String COEFFICIENT_CANNOT_BE_NULL = "Coefficient cannot be null!";
     private static final BigDecimal TWENTY_PERCENT = new BigDecimal("1.2");
     private static final BigDecimal FIFTY_PERCENT = new BigDecimal("1.5");
-    private static final BigDecimal ONEHUNDRED = new BigDecimal(100);
+    private static final BigDecimal HUNDRED = new BigDecimal(100);
     private static final String EMPLOYEES_CANNOT_BE_NULL = "Employees cannot be null!";
-
+    private static final int DEFAULT_MANAGER_ID_FOR_CEO = 0;
 
     /**
      * Default constructor.
@@ -100,7 +101,7 @@ public class SimpleReporterFactory implements ReporterFactory {
      * @return percentage.
      */
     private static String toPercentage(BigDecimal coefficient) {
-        return coefficient.multiply(ONEHUNDRED).subtract(ONEHUNDRED).toPlainString();
+        return coefficient.multiply(HUNDRED).subtract(HUNDRED).toPlainString();
     }
 
 
@@ -117,7 +118,7 @@ public class SimpleReporterFactory implements ReporterFactory {
         var employeesByManager = employeeRecords
                 .entrySet()
                 .stream()
-                .collect(Collectors.groupingBy(e -> e.getValue().managerId() == null ? Integer.valueOf(0) : e.getValue().managerId()));
+                .collect(Collectors.groupingBy(SimpleReporterFactory::getManagerId));
 
         for (Map.Entry<Integer, List<Map.Entry<Integer, Employee>>> entry : employeesByManager.entrySet()) {
             var manager = getManager(entry, employees, ceo);
@@ -132,6 +133,15 @@ public class SimpleReporterFactory implements ReporterFactory {
         }
 
         return employees;
+    }
+
+    /**
+     * Returns the manager id to be used for this {@code Map.Entry}.
+     * @param entry employee
+     * @return manager id, if null the {@code DEFAULT_MANAGER_ID_FOR_CEO} is returned
+     */
+    private static Integer getManagerId(Map.Entry<Integer, Employee> entry) {
+        return entry.getValue().managerId() == null ? Integer.valueOf(DEFAULT_MANAGER_ID_FOR_CEO) : entry.getValue().managerId();
     }
 
     /**
@@ -180,6 +190,6 @@ public class SimpleReporterFactory implements ReporterFactory {
     private static EmployeeEntity getManager(Map.Entry<Integer, List<Map.Entry<Integer, Employee>>> entry,
                                              Map<Integer, EmployeeEntity> employees,
                                              int ceo) {
-        return entry.getKey() == 0 ? employees.get(ceo) : employees.get(entry.getKey());
+        return entry.getKey() == DEFAULT_MANAGER_ID_FOR_CEO ? employees.get(ceo) : employees.get(entry.getKey());
     }
 }

@@ -23,6 +23,8 @@ public class SimpleReporter implements Reporter {
     private static final String DELIMITER = ", ";
     private static final String SUFFIX = ".";
     private static final String SPACE = " ";
+    private static final int SALARIES_SUMMARIZED_INDEX = 0;
+    private static final int SALARIES_COUNT_INDEX = 1;
     private final BigDecimal lowerRangeCoefficient;
     private final String lowerRangePercentage;
     private final BigDecimal upperRangeCoefficient;
@@ -157,7 +159,7 @@ public class SimpleReporter implements Reporter {
                 .map(bd -> new BigDecimal[]{bd, BigDecimal.ONE})
                 .reduce((a, b) -> new BigDecimal[]{a[0].add(b[0]), a[1].add(BigDecimal.ONE)})
                 .orElseThrow();
-        return totalWithCount[0].divide(totalWithCount[1], RoundingMode.HALF_UP);
+        return totalWithCount[SALARIES_SUMMARIZED_INDEX].divide(totalWithCount[SALARIES_COUNT_INDEX], RoundingMode.HALF_UP);
     }
 
     /**
@@ -178,7 +180,7 @@ public class SimpleReporter implements Reporter {
      * @return a report
      */
     private static String getLongReportingLine(EmployeeEntity employee) {
-        return String.format(EMPLOYEE_S_S_HAS_MORE_THAN_4_MANAGER_BETWEEN_HIM_AND_THE_CEO,
+        return EMPLOYEE_S_S_HAS_MORE_THAN_4_MANAGER_BETWEEN_HIM_AND_THE_CEO.formatted(
                 employee.getFirstName(), employee.getLastName());
     }
 
@@ -190,7 +192,7 @@ public class SimpleReporter implements Reporter {
      * @return the report line about the anomaly
      */
     private String getHighSalaryReport(EmployeeEntity manager, BigDecimal subordinatesAverageSalary) {
-        return String.format(MANAGERS_SALARY_IS_MORE_THAN_50_PERCENT_OF_SUBORDINATES_AVERAGE_SALARY,
+        return MANAGERS_SALARY_IS_MORE_THAN_50_PERCENT_OF_SUBORDINATES_AVERAGE_SALARY.formatted(
                 manager.getFirstName(), manager.getLastName(), manager.getSalary(), upperRangePercentage,
                 manager.getSalary().subtract(subordinatesAverageSalary.multiply(FIFTY_PERCENT)));
     }
@@ -203,7 +205,7 @@ public class SimpleReporter implements Reporter {
      * @return the report line about the anomaly
      */
     private String getLowSalaryReport(EmployeeEntity manager, BigDecimal subordinatesAverageSalary) {
-        return String.format(MANAGERS_SALARY_IS_LESS_THAN_20_PERCENT_OF_SUBORDINATES_AVERAGE_SALARY,
+        return MANAGERS_SALARY_IS_LESS_THAN_20_PERCENT_OF_SUBORDINATES_AVERAGE_SALARY.formatted(
                 manager.getFirstName(), manager.getLastName(), manager.getSalary(), lowerRangePercentage,
                 subordinatesAverageSalary.multiply(TWENTY_PERCENT).subtract(manager.getSalary()));
     }

@@ -1,8 +1,5 @@
 package com.epam.reporter.api;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * Executes a report on the given CsvFile.
  */
@@ -26,8 +23,8 @@ public class ReportExecutor {
      * The report is printed to standard output.
      */
     public void execute() {
-        Map<Integer, Employee> employees = csvFile.parse();
-        List<String> report = reporterFactory.create(employees).report();
+        var employees = csvFile.parse();
+        var report = reporterFactory.create(employees).report();
         report.forEach(System.out::println);
     }
 }
