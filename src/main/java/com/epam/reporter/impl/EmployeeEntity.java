@@ -118,13 +118,6 @@ class EmployeeEntity {
         return manager == null ? 0 : manager.getLevel() + 1;
     }
 
-    @Override
-    public String toString() {
-        return String.format("Employee{id=%d, firstName='%s', lastName='%s', salary=%.2f, managerId=%s}",
-                id, firstName, lastName, salary, manager != null ? manager.getId() : "null");
-    }
-
-
     /**
      * Factory method to instantiate Employee entities from records.
      * @param employee record to use for instances

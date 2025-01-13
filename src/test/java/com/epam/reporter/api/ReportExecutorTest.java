@@ -3,14 +3,13 @@ package com.epam.reporter.api;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 class ReportExecutorTest {
 
     @Test
-    public void executeShouldCallBothCsvParserAndReporterFactory() {
+    void executeShouldCallBothCsvParserAndReporterFactory() {
         var csvParser = Mockito.mock(CsvFile.class);
         var reporterFactory = Mockito.mock(ReporterFactory.class);
         var reporter = Mockito.mock(Reporter.class);

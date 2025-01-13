@@ -5,22 +5,23 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static com.epam.reporter.impl.TestConstants.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class SimpleReporterFactoryTest {
+class SimpleReporterFactoryTest {
     private static final BigDecimal LESS_THAN_ZERO_COEFFICIENT = new BigDecimal(-1);
+    private static final Map<Integer, Employee> EMPTY_MAP = Collections.emptyMap();
 
     private final SimpleReporterFactory underTest = new SimpleReporterFactory();
 
     @Test
-    public void createReporterRunsJustFine() {
+    void createReporterRunsJustFine() {
         var employees = List.of(
                 new Employee(1, JOHN, DOE, CEO_SALARY, null),
                 new Employee(2, JANE, DOE, DIRECTOR_SALARY, 1),
@@ -39,57 +40,32 @@ public class SimpleReporterFactoryTest {
     }
 
     @Test
-    public void createThrowsExceptionIfNoCeoFound() {
-        Employee employee1 = new Employee(1, JOHN, DOE, EMPLOYEE_SALARY, 2);
-        Employee employee2 = new Employee(2, JANE, DOE, EMPLOYEE_SALARY, 1);
-
-        Map<Integer, Employee> employees = new HashMap<>();
-        employees.put(1, employee1);
-        employees.put(2, employee2);
-
-        assertThrows(CEONotFoundException.class, () -> underTest.create(employees));
+    void shouldThrowExceptionIfLowerRangeGreaterThanUpper() {
+        assertThrows(InvalidRangesException.class, () -> underTest.create(UPPER_RANGE_COEFFICIENT, LOWER_RANGE_COEFFICIENT, EMPTY_MAP));
     }
 
     @Test
-    public void createThrowsExceptionIfMoreCeoFound() {
-        Employee employee1 = new Employee(1, JOHN, DOE, EMPLOYEE_SALARY, null);
-        Employee employee2 = new Employee(2, JANE, DOE, EMPLOYEE_SALARY, null);
-
-        Map<Integer, Employee> employees = new HashMap<>();
-        employees.put(1, employee1);
-        employees.put(2, employee2);
-
-        assertThrows(MultipleEmployeesWithoutManagerException.class, () -> underTest.create(employees));
-    }
-
-
-    @Test
-    public void shouldThrowExceptionIfLowerRangeGreaterThanUpper() {
-        assertThrows(InvalidRangesException.class, () -> underTest.create(UPPER_RANGE_COEFFICIENT, LOWER_RANGE_COEFFICIENT, Collections.emptyMap()));
+    void shouldThrowExceptionIfLowerRangeLessThanZero() {
+        assertThrows(InvalidRangesException.class, () -> underTest.create(LESS_THAN_ZERO_COEFFICIENT, UPPER_RANGE_COEFFICIENT, EMPTY_MAP));
     }
 
     @Test
-    public void shouldThrowExceptionIfLowerRangeLessThanZero() {
-        assertThrows(InvalidRangesException.class, () -> underTest.create(LESS_THAN_ZERO_COEFFICIENT, UPPER_RANGE_COEFFICIENT, Collections.emptyMap()));
+    void shouldThrowExceptionIfUpperRangeLessThanZero() {
+        assertThrows(InvalidRangesException.class, () -> underTest.create(LOWER_RANGE_COEFFICIENT, LESS_THAN_ZERO_COEFFICIENT, EMPTY_MAP));
     }
 
     @Test
-    public void shouldThrowExceptionIfUpperRangeLessThanZero() {
-        assertThrows(InvalidRangesException.class, () -> underTest.create(LOWER_RANGE_COEFFICIENT, LESS_THAN_ZERO_COEFFICIENT, Collections.emptyMap()));
+    void shouldThrowExceptionIfLowerRangeIsZero() {
+        assertThrows(InvalidRangesException.class, () -> underTest.create(null, UPPER_RANGE_COEFFICIENT, EMPTY_MAP));
     }
 
     @Test
-    public void shouldThrowExceptionIfLowerRangeIsZero() {
-        assertThrows(InvalidRangesException.class, () -> underTest.create(null, UPPER_RANGE_COEFFICIENT, Collections.emptyMap()));
+    void shouldThrowExceptionIfUpperRangeIsZero() {
+        assertThrows(InvalidRangesException.class, () -> underTest.create(LOWER_RANGE_COEFFICIENT, null, EMPTY_MAP));
     }
 
     @Test
-    public void shouldThrowExceptionIfUpperRangeIsZero() {
-        assertThrows(InvalidRangesException.class, () -> underTest.create(LOWER_RANGE_COEFFICIENT, null, Collections.emptyMap()));
-    }
-
-    @Test
-    public void shouldThrowExceptionIfEmployeesIsNull() {
+    void shouldThrowExceptionIfEmployeesIsNull() {
         assertThrows(IllegalArgumentException.class, () -> underTest.create(LOWER_RANGE_COEFFICIENT, UPPER_RANGE_COEFFICIENT, null));
     }
 }

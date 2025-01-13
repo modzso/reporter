@@ -70,29 +70,32 @@ public final class SimpleCsvFile implements CsvFile {
                 String[] parts = line.split(COLUMN_SEPARATOR);
                 if (parts.length < REQUIRED_COLUMNS) {
                     errorHandler.handle(INVALID_LINE_NOT_ENOUGH_COLUMNS_SKIPPING_IT_LINE_S.formatted(line));
-                    continue;
-                }
-
-                try {
-                    int id = Integer.parseInt(parts[ID_COLUMN_INDEX].trim());
-                    var firstName = parts[FIRST_NAME_COLUMN_INDEX].trim();
-                    var lastName = parts[LAST_NAME_COLUMN_INDEX].trim();
-                    var salary = new BigDecimal(parts[SALARY_COLUMN_INDEX].trim());
-
-                    var employee = createEmployee(parts, id, firstName, lastName, salary);
-                    if (employeeMap.containsKey(id)) {
-                        errorHandler.handle(FILE_CONTAINS_MULTIPLE_RECORDS_FOR_ID_D.formatted(id));
-                        continue;
-                    }
-                    employeeMap.put(id, employee);
-                } catch (NumberFormatException e) {
-                    errorHandler.handle(SKIPPING_LINE_BECAUSE_INVALID_NUMBER_S.formatted(line));
+                } else {
+                    parseLine(parts, employeeMap, line);
                 }
             }
         } catch (IOException e) {
             throw new CsvFileNotFoundException();
         }
         return employeeMap;
+    }
+
+    private void parseLine(String[] parts, Map<Integer, Employee> employeeMap, String line) {
+        try {
+            int id = Integer.parseInt(parts[ID_COLUMN_INDEX].trim());
+            var firstName = parts[FIRST_NAME_COLUMN_INDEX].trim();
+            var lastName = parts[LAST_NAME_COLUMN_INDEX].trim();
+            var salary = new BigDecimal(parts[SALARY_COLUMN_INDEX].trim());
+
+            var employee = createEmployee(parts, id, firstName, lastName, salary);
+            if (employeeMap.containsKey(id)) {
+                errorHandler.handle(FILE_CONTAINS_MULTIPLE_RECORDS_FOR_ID_D.formatted(id));
+                return;
+            }
+            employeeMap.put(id, employee);
+        } catch (NumberFormatException e) {
+            errorHandler.handle(SKIPPING_LINE_BECAUSE_INVALID_NUMBER_S.formatted(line));
+        }
     }
 
     /**

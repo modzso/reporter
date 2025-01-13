@@ -90,6 +90,12 @@ public class SimpleReporter implements Reporter {
                 .stream()
                 .filter(employee -> employee.getManager() == null)
                 .toList();
+        if (withoutManager.isEmpty()) {
+            throw new CEONotFoundException();
+        }
+        if (withoutManager.size() > 1) {
+            throw new MultipleEmployeesWithoutManagerException();
+        }
         return withoutManager.getFirst();
     }
 

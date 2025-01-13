@@ -25,12 +25,6 @@ public class SimpleReporterFactory implements ReporterFactory {
     private static final int DEFAULT_MANAGER_ID_FOR_CEO = 0;
 
     /**
-     * Default constructor.
-     */
-    public SimpleReporterFactory() {
-    }
-
-    /**
      * Factory method for creating a {@code SimpleReporter} with default values.
      * @param employees map of employees.
      * @return the created reporter
@@ -111,8 +105,6 @@ public class SimpleReporterFactory implements ReporterFactory {
      * @return map of employees, with references to their manager and subordinates.
      */
     private Map<Integer, EmployeeEntity> convert(Map<Integer, Employee> employeeRecords) {
-        var withoutManager = findEmployeesWithoutManager(employeeRecords);
-        var ceo = withoutManager.getFirst().id();
         var employees = getEmployeeEntities(employeeRecords);
 
         var employeesByManager = employeeRecords
@@ -121,7 +113,7 @@ public class SimpleReporterFactory implements ReporterFactory {
                 .collect(Collectors.groupingBy(SimpleReporterFactory::getManagerId));
 
         for (Map.Entry<Integer, List<Map.Entry<Integer, Employee>>> entry : employeesByManager.entrySet()) {
-            var manager = getManager(entry, employees, ceo);
+            var manager = getManager(entry, employees);
             var subordinates = entry
                     .getValue()
                     .stream()
@@ -129,7 +121,8 @@ public class SimpleReporterFactory implements ReporterFactory {
                     .map(employees::get)
                     .toList();
 
-            subordinates.forEach(manager::addSubordinate);
+            if (manager != null)
+                subordinates.forEach(manager::addSubordinate);
         }
 
         return employees;
@@ -158,38 +151,13 @@ public class SimpleReporterFactory implements ReporterFactory {
     }
 
     /**
-     * Finds all employees who do not have any manager.
-     * @param employeeRecords records or employees
-     * @return all employees who do not have manager
-     * @throws CEONotFoundException if no employee found without manager
-     * @throws MultipleEmployeesWithoutManagerException if more than one employee found without manager
-     */
-    private static List<Employee> findEmployeesWithoutManager(Map<Integer, Employee> employeeRecords) {
-        var withoutManager = employeeRecords
-                .values()
-                .stream()
-                .filter(employee -> employee.managerId() == null)
-                .collect(Collectors.toList());
-        if (withoutManager.isEmpty()) {
-            throw new CEONotFoundException();
-        }
-        if (withoutManager.size() > 1) {
-            System.out.println(withoutManager);
-            throw new MultipleEmployeesWithoutManagerException();
-        }
-        return withoutManager;
-    }
-
-    /**
      * Returns the manager for the given list of employees.
      * @param entry the actual entry being processed
      * @param employees map of employees to obtain the manager
-     * @param ceo id of the CEO to use where the entry has no value, so the CEO should be used.
      * @return manager of employees in the entry
      */
     private static EmployeeEntity getManager(Map.Entry<Integer, List<Map.Entry<Integer, Employee>>> entry,
-                                             Map<Integer, EmployeeEntity> employees,
-                                             int ceo) {
-        return entry.getKey() == DEFAULT_MANAGER_ID_FOR_CEO ? employees.get(ceo) : employees.get(entry.getKey());
+                                             Map<Integer, EmployeeEntity> employees) {
+        return entry.getKey() == DEFAULT_MANAGER_ID_FOR_CEO ? null : employees.get(entry.getKey());
     }
 }
