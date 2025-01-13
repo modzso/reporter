@@ -192,7 +192,7 @@ public class SimpleReporter implements Reporter {
     private String getHighSalaryReport(EmployeeEntity manager, BigDecimal subordinatesAverageSalary) {
         return String.format(MANAGERS_SALARY_IS_MORE_THAN_50_PERCENT_OF_SUBORDINATES_AVERAGE_SALARY,
                 manager.getFirstName(), manager.getLastName(), manager.getSalary(), upperRangePercentage,
-                (manager.getSalary().subtract(subordinatesAverageSalary.multiply(FIFTY_PERCENT))));
+                manager.getSalary().subtract(subordinatesAverageSalary.multiply(FIFTY_PERCENT)));
     }
 
     /**
@@ -205,6 +205,6 @@ public class SimpleReporter implements Reporter {
     private String getLowSalaryReport(EmployeeEntity manager, BigDecimal subordinatesAverageSalary) {
         return String.format(MANAGERS_SALARY_IS_LESS_THAN_20_PERCENT_OF_SUBORDINATES_AVERAGE_SALARY,
                 manager.getFirstName(), manager.getLastName(), manager.getSalary(), lowerRangePercentage,
-                (subordinatesAverageSalary.multiply(TWENTY_PERCENT).subtract(manager.getSalary())));
+                subordinatesAverageSalary.multiply(TWENTY_PERCENT).subtract(manager.getSalary()));
     }
 }

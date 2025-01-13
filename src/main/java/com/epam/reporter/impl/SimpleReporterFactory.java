@@ -23,6 +23,11 @@ public class SimpleReporterFactory implements ReporterFactory {
     private static final String EMPLOYEES_CANNOT_BE_NULL = "Employees cannot be null!";
 
 
+    /**
+     * Factory method for creating a {@code SimpleReporter} with default values.
+     * @param employees map of employees.
+     * @return the created reporter
+     */
     @Override
     public SimpleReporter create(Map<Integer, Employee> employees) {
         return create(TWENTY_PERCENT, FIFTY_PERCENT, employees);
@@ -93,19 +98,20 @@ public class SimpleReporterFactory implements ReporterFactory {
     }
 
 
+    /**
+     * Converts a map of employee records to employee entities.
+     * @param employeeRecords map of employees
+     * @return map of employees, with references to their manager and subordinates.
+     */
     private Map<Integer, EmployeeEntity> convert(Map<Integer, Employee> employeeRecords) {
         var withoutManager = findEmployeesWithoutManager(employeeRecords);
         var ceo = withoutManager.getFirst().id();
-        var employees = employeeRecords
-                .values()
-                .stream()
-                .map(EmployeeEntity::create)
-                .collect(Collectors.toMap(EmployeeEntity::getId, Function.identity()));
+        var employees = getEmployeeEntities(employeeRecords);
 
         var employeesByManager = employeeRecords
                 .entrySet()
                 .stream()
-                .collect(Collectors.groupingBy(e -> e.getValue().managerId() == null ? 0 : e.getValue().managerId()));
+                .collect(Collectors.groupingBy(e -> e.getValue().managerId() == null ? Integer.valueOf(0) : e.getValue().managerId()));
 
         for (Map.Entry<Integer, List<Map.Entry<Integer, Employee>>> entry : employeesByManager.entrySet()) {
             var manager = getManager(entry, employees, ceo);
@@ -122,6 +128,26 @@ public class SimpleReporterFactory implements ReporterFactory {
         return employees;
     }
 
+    /**
+     * Creates the initial map of EmployeeEntities.
+     * @param employeeRecords records of employees
+     * @return map of employee entities
+     */
+    private static Map<Integer, EmployeeEntity> getEmployeeEntities(Map<Integer, Employee> employeeRecords) {
+        return employeeRecords
+                .values()
+                .stream()
+                .map(EmployeeEntity::create)
+                .collect(Collectors.toMap(EmployeeEntity::getId, Function.identity()));
+    }
+
+    /**
+     * Finds all employees who do not have any manager.
+     * @param employeeRecords records or employees
+     * @return all employees who do not have manager
+     * @throws CEONotFoundException if no employee found without manager
+     * @throws MultipleEmployeesWithoutManagerException if more than one employee found without manager
+     */
     private static List<Employee> findEmployeesWithoutManager(Map<Integer, Employee> employeeRecords) {
         var withoutManager = employeeRecords
                 .values()
@@ -138,6 +164,13 @@ public class SimpleReporterFactory implements ReporterFactory {
         return withoutManager;
     }
 
+    /**
+     * Returns the manager for the given list of employees.
+     * @param entry the actual entry being processed
+     * @param employees map of employees to obtain the manager
+     * @param ceo id of the CEO to use where the entry has no value, so the CEO should be used.
+     * @return manager of employees in the entry
+     */
     private static EmployeeEntity getManager(Map.Entry<Integer, List<Map.Entry<Integer, Employee>>> entry,
                                              Map<Integer, EmployeeEntity> employees,
                                              int ceo) {

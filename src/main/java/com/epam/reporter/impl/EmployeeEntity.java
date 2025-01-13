@@ -25,7 +25,7 @@ class EmployeeEntity {
      * @param lastName last name of the employee
      * @param salary salary of the employee
      */
-    EmployeeEntity(int id, String firstName, String lastName, BigDecimal salary, Integer managerId) {
+    EmployeeEntity(int id, String firstName, String lastName, BigDecimal salary) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -131,7 +131,7 @@ class EmployeeEntity {
      * @return the created employee entity
      */
     static EmployeeEntity create(Employee employee) {
-        return new EmployeeEntity(employee.id(), employee.firstName(), employee.lastName(), employee.salary(), employee.managerId());
+        return new EmployeeEntity(employee.id(), employee.firstName(), employee.lastName(), employee.salary());
     }
 }
 

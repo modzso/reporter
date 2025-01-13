@@ -28,10 +28,25 @@ where the managerId is optional
 * The program does not check for circular connection that is A is manager of B, B is manager of C, and C is manager of A.
 
 # Design
-* Employee class stores the parsed data. Because the manager and subordinates are set later, I opted to use a normal class instead of record.
+* Employee record stores the parsed data. 
+* Implementors can use this in any way the want.
 * CsvParser handles the parsing of the input data. It returns a map of Employees, where all properties are already set.
 * Reporter creates the report. It receives the map of Employees, executes multiple checks (Is there a CEO?, are there multiple CEOs?) If these checks don't fail, creates the report.
 * ReporterApplication is the mail class, it is checking the program arguments, and prints the report to the standard output.
 
 ### 2025.01.02
 Added new report about employee(s) who are not in the hierarchy of the CEO. This can only happen if there are loops (e.g.: Employee1 is the manager of Employee2, while Employee2 is the manager of Employee1).
+
+### 2025.01.13
+- Handling empty lines
+- Added custom business exceptions
+- Renamed the tests to camel case
+- Changed double to BigDecimal
+- Added interfaces, separated api and impl package for DIP
+- Added invalid input handling: 
+  - line is skipped if does not have enough columns for an employee record
+  - line is skipped if it has an already used id
+  - line is skipped if any number cannot be parsed inside it
+- Added customizable csv parsing error handling:
+  - noop: skips the wrong line, prints it to the standard error
+  - throw_exception: throws an exception and terminates program execution

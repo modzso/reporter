@@ -9,10 +9,8 @@ import java.util.Map;
 public interface CsvFile {
 
     /**
-     * Parses input from the given BufferedReader.
-     * It assumes that the first line is the header
-     * and the order of columns are:
-     * Id,firstName,lastName,salary,managerId
+     * Returns a {@code Map<Integer, Employee} contained in the file.
+     * Implementation should expect a header and handle empty lines.
      *
      * @return a map of employees
      * @throws IllegalArgumentException if there is a problem with the file

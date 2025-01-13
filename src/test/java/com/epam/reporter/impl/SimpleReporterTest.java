@@ -13,7 +13,7 @@ class SimpleReporterTest {
 
     @Test
     public void reportReturnsReportForCeo() {
-        EmployeeEntity employee1 = new EmployeeEntity(1, JOHN, DOE, EMPLOYEE_SALARY, null);
+        EmployeeEntity employee1 = new EmployeeEntity(1, JOHN, DOE, EMPLOYEE_SALARY);
 
         Map<Integer, EmployeeEntity> employees = new HashMap<>();
         employees.put(1, employee1);
@@ -25,8 +25,8 @@ class SimpleReporterTest {
 
     @Test
     public void reportDisplaysManagerSalaryLessThanSubordinatesAverageSalary20Percent() {
-        EmployeeEntity manager = new EmployeeEntity(1, JOHN, DOE, EMPLOYEE_SALARY, null);
-        EmployeeEntity employee = new EmployeeEntity(2, JANE, DOE, EMPLOYEE_SALARY, 1);
+        EmployeeEntity manager = new EmployeeEntity(1, JOHN, DOE, EMPLOYEE_SALARY);
+        EmployeeEntity employee = new EmployeeEntity(2, JANE, DOE, EMPLOYEE_SALARY);
         manager.addSubordinate(employee);
 
         Map<Integer, EmployeeEntity> employees = new HashMap<>();
@@ -40,8 +40,8 @@ class SimpleReporterTest {
 
     @Test
     public void reportDisplaysManagerSalaryMoreThanSubordinatesSaverageSalary50Percent() {
-        EmployeeEntity manager = new EmployeeEntity(1, JOHN, DOE, CEO_SALARY, null);
-        EmployeeEntity employee = new EmployeeEntity(2, JANE, DOE, EMPLOYEE_SALARY, 1);
+        EmployeeEntity manager = new EmployeeEntity(1, JOHN, DOE, CEO_SALARY);
+        EmployeeEntity employee = new EmployeeEntity(2, JANE, DOE, EMPLOYEE_SALARY);
         manager.addSubordinate(employee);
 
         Map<Integer, EmployeeEntity> employees = new HashMap<>();
@@ -54,9 +54,9 @@ class SimpleReporterTest {
 
     @Test
     public void reportChecksSubordinatesUnderTopLevelManager() {
-        EmployeeEntity ceo = new EmployeeEntity(1, JOHN, DOE, SENIOR_MANAGER_SALARY, null);
-        EmployeeEntity manager = new EmployeeEntity(2, JANE, DOE, MANAGER_SALARY, 1);
-        EmployeeEntity employee = new EmployeeEntity(3, JACK, DOE, EMPLOYEE_SALARY, 2);
+        EmployeeEntity ceo = new EmployeeEntity(1, JOHN, DOE, SENIOR_MANAGER_SALARY);
+        EmployeeEntity manager = new EmployeeEntity(2, JANE, DOE, MANAGER_SALARY);
+        EmployeeEntity employee = new EmployeeEntity(3, JACK, DOE, EMPLOYEE_SALARY);
         ceo.addSubordinate(manager);
         manager.addSubordinate(employee);
 
@@ -70,13 +70,13 @@ class SimpleReporterTest {
 
     @Test
     public void reportChecksSubordinatesUnderMoreLevelManager() {
-        EmployeeEntity ceo = new EmployeeEntity(1, JOHN, DOE, CEO_SALARY, null);
-        EmployeeEntity director = new EmployeeEntity(2, JANE, DOE, DIRECTOR_SALARY, 1);
-        EmployeeEntity divisionDirector = new EmployeeEntity(3, DAN, DOE, DIVISION_DIRECTOR_SALARY, 2);
-        EmployeeEntity departmentManager = new EmployeeEntity(4, NOAH, DOE, DEPARTMENT_MANAGER_SALARY, 3);
-        EmployeeEntity seniorManager = new EmployeeEntity(5, ROBERT, DOE, SENIOR_MANAGER_SALARY, 4);
-        EmployeeEntity manager = new EmployeeEntity(6, EMILY, TAYLOR, MANAGER_SALARY, 5);
-        EmployeeEntity employee = new EmployeeEntity(7, JACK, DOE, EMPLOYEE_SALARY, 6);
+        EmployeeEntity ceo = new EmployeeEntity(1, JOHN, DOE, CEO_SALARY);
+        EmployeeEntity director = new EmployeeEntity(2, JANE, DOE, DIRECTOR_SALARY);
+        EmployeeEntity divisionDirector = new EmployeeEntity(3, DAN, DOE, DIVISION_DIRECTOR_SALARY);
+        EmployeeEntity departmentManager = new EmployeeEntity(4, NOAH, DOE, DEPARTMENT_MANAGER_SALARY);
+        EmployeeEntity seniorManager = new EmployeeEntity(5, ROBERT, DOE, SENIOR_MANAGER_SALARY);
+        EmployeeEntity manager = new EmployeeEntity(6, EMILY, TAYLOR, MANAGER_SALARY);
+        EmployeeEntity employee = new EmployeeEntity(7, JACK, DOE, EMPLOYEE_SALARY);
         ceo.addSubordinate(director);
         director.addSubordinate(divisionDirector);
         divisionDirector.addSubordinate(departmentManager);
@@ -98,11 +98,11 @@ class SimpleReporterTest {
 
     @Test
     public void reportEmployeesNotInHierarchy() {
-        EmployeeEntity ceo = new EmployeeEntity(1, JOHN, DOE, DEPARTMENT_MANAGER_SALARY, null);
-        EmployeeEntity manager = new EmployeeEntity(2, EMILY, TAYLOR, MANAGER_SALARY, 1);
-        EmployeeEntity employee = new EmployeeEntity(3, JACK, DOE, EMPLOYEE_SALARY, 2);
-        EmployeeEntity danglingEmployee1 = new EmployeeEntity(4, LAUREN, SMITH, EMPLOYEE_SALARY, 3);
-        EmployeeEntity danglingEmployee2 = new EmployeeEntity(5, BLAKE, THOMPSON, EMPLOYEE_SALARY, 4);
+        EmployeeEntity ceo = new EmployeeEntity(1, JOHN, DOE, DEPARTMENT_MANAGER_SALARY);
+        EmployeeEntity manager = new EmployeeEntity(2, EMILY, TAYLOR, MANAGER_SALARY);
+        EmployeeEntity employee = new EmployeeEntity(3, JACK, DOE, EMPLOYEE_SALARY);
+        EmployeeEntity danglingEmployee1 = new EmployeeEntity(4, LAUREN, SMITH, EMPLOYEE_SALARY);
+        EmployeeEntity danglingEmployee2 = new EmployeeEntity(5, BLAKE, THOMPSON, EMPLOYEE_SALARY);
         ceo.addSubordinate(manager);
         manager.addSubordinate(employee);
         manager.addSubordinate(employee);
