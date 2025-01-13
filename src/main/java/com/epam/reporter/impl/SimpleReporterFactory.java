@@ -24,6 +24,12 @@ public class SimpleReporterFactory implements ReporterFactory {
 
 
     /**
+     * Default constructor.
+     */
+    public SimpleReporterFactory() {
+    }
+
+    /**
      * Factory method for creating a {@code SimpleReporter} with default values.
      * @param employees map of employees.
      * @return the created reporter

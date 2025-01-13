@@ -33,7 +33,7 @@ public final class SimpleCsvFile implements CsvFile {
     private final ErrorHandler errorHandler;
 
     /**
-     * Constructs a CSV file based on the InputStream.
+     * Constructs a CSV file based on the supplied InputStream with customizable ErrorHandler.
      * @param in from the CSV file
      * @param errorHandler customizable error handler
      */
@@ -42,6 +42,11 @@ public final class SimpleCsvFile implements CsvFile {
         this.errorHandler = errorHandler;
     }
 
+    /**
+     * Constructs a CSV file based on the supplied InputStream.
+     * Error handler is set to {@code ParsingErrorHandlerStrategy.NOOP}.
+     * @param in the input stream
+     */
     public SimpleCsvFile(InputStream in) {
         this(in, ParsingErrorHandlingStrategy.NOOP);
     }
