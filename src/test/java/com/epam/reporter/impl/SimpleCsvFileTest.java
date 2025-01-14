@@ -1,7 +1,6 @@
 package com.epam.reporter.impl;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -10,8 +9,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SimpleCsvFileTest {
 
-    @ParameterizedTest
-    @Value
     @Test
     void parsingSingleEmployeeSuccessful() {
         String line = """
@@ -88,5 +85,18 @@ class SimpleCsvFileTest {
         assertEquals("""
                 Skipping line because invalid number: A1,Joe,Doe,60000,!
                 """, ex.getMessage());
+    }
+
+    @Test
+    void parseShouldThrowExceptionIfHeaderIsWrong() {
+        String line = """
+                Id,firstName,lastName,salary
+                A1,Joe,Doe,60000,
+                """;
+
+        var input = new ByteArrayInputStream(line.getBytes(StandardCharsets.UTF_8));
+        var simpleCsvFile = new SimpleCsvFile(input, ParsingErrorHandlingStrategy.THROW_EXCEPTION);
+        var ex = assertThrows(CsvParsingException.class, simpleCsvFile::parse);
+        assertEquals("Invalid header: Id,firstName,lastName,salary!", ex.getMessage());
     }
 }

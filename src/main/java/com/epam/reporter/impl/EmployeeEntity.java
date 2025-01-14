@@ -59,7 +59,7 @@ class EmployeeEntity {
 
     /**
      * Adds a subordinate to this manager.
-     * Sets manager on subordiante.
+     * Sets manager on subordinate.
      * @param subordinate employee managed by this Employee.
      */
     public void addSubordinate(EmployeeEntity subordinate) {
@@ -100,7 +100,7 @@ class EmployeeEntity {
     }
 
     /**
-     * Retunrs true if the employee is manager, that is she/he has subordinates.
+     * Returns true if the employee is manager, that is she/he has subordinates.
      * @return true if the employee is manager
      */
     public boolean isManager() {
