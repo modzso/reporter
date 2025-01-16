@@ -19,7 +19,7 @@ import java.util.Map;
 public final class SimpleCsvFile implements CsvFile {
     private static final String INVALID_LINE_NOT_ENOUGH_COLUMNS_SKIPPING_IT_LINE_S = "Invalid line, not enough columns, skipping it! Line: %s%n";
     private static final String FILE_CONTAINS_MULTIPLE_RECORDS_FOR_ID_D = "File contains multiple records for id: %d!%n";
-    private static final String SKIPPING_LINE_BECAUSE_INVALID_NUMBER_S = "Skipping line because invalid number: %s!%n";
+    private static final String SKIPPING_LINE_BECAUSE_INVALID_NUMBER_S = "Skipping line because invalid number: %s!";
     private static final String COLUMN_SEPARATOR = ",";
     private static final int REQUIRED_COLUMNS = 4;
     private static final int ID_COLUMN_INDEX = 0;

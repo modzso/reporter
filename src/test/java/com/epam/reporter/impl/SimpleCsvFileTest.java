@@ -82,9 +82,7 @@ class SimpleCsvFileTest {
         var input = new ByteArrayInputStream(line.getBytes(StandardCharsets.UTF_8));
         var simpleCsvFile = new SimpleCsvFile(input, ParsingErrorHandlingStrategy.THROW_EXCEPTION);
         var ex = assertThrows(CsvParsingException.class, simpleCsvFile::parse);
-        assertEquals("""
-                Skipping line because invalid number: A1,Joe,Doe,60000,!
-                """, ex.getMessage());
+        assertEquals("Skipping line because invalid number: A1,Joe,Doe,60000,!", ex.getMessage());
     }
 
     @Test
